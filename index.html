@@ -899,7 +899,7 @@
                 return;
             }
             
-            gameState.overHistory.forEach(over => {
+            gameState.overHistory.reverse().forEach(over => {
                 let overEl = document.createElement('div');
                 let teamClass = over.team === gameState.team1 ? 'team1' : 'team2';
                 overEl.className = `over-item ${teamClass}`;
