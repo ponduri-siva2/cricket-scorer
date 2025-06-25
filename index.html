@@ -759,6 +759,7 @@
 
         // End innings
         function endInnings() {
+            let maxWickets = settings.lastPlayerCanBat ? gameState.totalWickets : gameState.totalWickets - 1;
             if (gameState.innings === 1) {
                 gameState.target = gameState.totalRuns + 1;
                 gameState.innings = 2;
@@ -770,6 +771,8 @@
                 gameState.currentOverBalls = [];
                 
                 alert(`${gameState.battingFirst} scored ${gameState.target - 1}. ${gameState.currentTeam} needs ${gameState.target} to win!`);
+            } else if(gameState.innings === 2 && gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || gameState.currentWickets == gameState.maxWickets)){
+                showCelebration(`Match Draw!`);
             } else {
                 let winner = gameState.totalRuns >= gameState.target ? gameState.currentTeam : 
                            (gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2);
@@ -927,10 +930,15 @@
                 to { transform: scale(1.1); color: #e91e63; }
                 }
             </style>
+            ${message !== 'Match Draw!' ? `
             <div class="confetti">🎉🎉🎉</div>
             <h1>Congratulations!</h1>
             <p>${message}</p>
             <div class="confetti">✨🎈🍾</div>
+            `: `
+            <p>${message}</p>
+            <img alt="" src="https://i.pinimg.com/736x/1a/e8/bc/1ae8bcdcef865fe7a50e34148c8cb1ce.jpg">
+            `}
             `;
         }
 
