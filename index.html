@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cricket Score Counter</title>
     <style>
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(10deg); }
+            50% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .wicket-animate {
+            animation: shake 0.6s ease-in-out;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -206,13 +218,13 @@
 
         .balls {
             display: flex;
-            gap: 10px;
+            gap: 5px;
             flex-wrap: wrap;
         }
 
         .ball {
-            width: 40px;
-            height: 40px;
+            width: 25px;
+            height: 25px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -344,10 +356,10 @@
         </div>
 
         <div class="nav">
-            <button class="nav-btn active" onclick="showScreen('setup')">Setup</button>
-            <button class="nav-btn" onclick="showScreen('scoring')">Scoring</button>
-            <button class="nav-btn" onclick="showScreen('history')">History</button>
-            <button class="nav-btn" onclick="showScreen('settings')">Settings</button>
+            <button class="nav-btn active" onclick="showScreen('setup')">📝 Setup</button>
+            <button class="nav-btn" onclick="showScreen('scoring')">🔢 Score</button>
+            <button class="nav-btn" onclick="showScreen('history')">🕒 Overs History</button>
+            <button class="nav-btn" onclick="showScreen('settings')">⚙️ Settings</button>
         </div>
 
         <!-- Setup Screen -->
@@ -434,6 +446,7 @@
 
         <!-- Scoring Screen -->
         <div id="scoring" class="screen">
+            <div id="runsRequiredInfo" style="display: none; text-align: center; font-size: 1em; font-weight: bold; margin-top: -10px; color: #e42529;"></div>
             <div class="scoring-area">
                 <div class="score-display">
                     <div class="total-score" id="totalScore">0/0</div>
@@ -444,22 +457,21 @@
                 </div>
                 <div class="score-display">
                     <div style="font-size: 1.5em; color: #2c3e50; margin-bottom: 10px;">
-                        <span id="currentTeam">Team A</span> Batting
+                        <span id="currentTeam">Team A</span> team Batting
                     </div>
                     <div id="targetInfo" style="display: none;">
-                        <div>Target: <span id="target">-</span></div>
+                        <div>🎯 Target: <span id="target">-</span></div>
                         <div>Required RR: <span id="requiredRR">-</span></div>
                     </div>
                     <div id="firstInningsInfo">
-                        <div>Innings: <span id="inningsDisplay">1</span></div>
+                        <!-- <div>Innings: <span id="inningsDisplay">1</span></div> -->
                         <div>Remaining: <span id="remaining">-</span></div>
                     </div>
                 </div>
             </div>
 
-            <div class="current-over">
-                <h3>Current Over</h3>
-                <div class="balls" id="currentOverBalls"></div>
+            <div class="current-over" style="display: flex;">
+                <h5>Current Over</h5> <div class="balls" id="currentOverBalls"></div>
             </div>
 
             <div class="controls">
@@ -478,7 +490,7 @@
 
         <!-- History Screen -->
         <div id="history" class="screen">
-            <h2 style="color: #2c3e50; margin-bottom: 20px;">Over History</h2>
+            <h2 style="color: #2c3e50; margin-bottom: 20px;">Overs History</h2>
             <div class="over-history" id="overHistory">
                 <p style="text-align: center; color: #7f8c8d;">No overs completed yet</p>
             </div>
@@ -486,8 +498,8 @@
 
         <!-- Settings Screen -->
         <div id="settings" class="screen">
-            <h2 style="color: #2c3e50; margin-bottom: 20px;">Settings</h2>
-            <div class="settings-grid">
+            <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Settings</h2>
+            <div class="settings-grid" style="margin-bottom: 20px;">
                 <div class="setting-item">
                     <span>Wide includes extra run</span>
                     <div class="toggle active" id="wideRunToggle" onclick="toggleSetting('wideRun')"></div>
@@ -509,7 +521,9 @@
                     <div class="toggle active" id="lastPlayerCanBatToggle" onclick="toggleSetting('lastPlayerCanBat')"></div>
                 </div>
             </div>
-            <button class="btn btn-success" onclick="startMatchWithOptions()">Lets go</button>
+            <div style="text-align: center;">
+                <button class="btn btn-success" onclick="startMatchWithOptions()">Lets go</button>
+            </div>
         </div>
     </div>
 
@@ -716,6 +730,11 @@
             let ballData = { type: 'wicket', value: 'W' };
             gameState.currentOverBalls.push(ballData);
             gameState.lastAction = { type: 'wicket' };
+
+            // Add animation to score
+            const scoreEl = document.getElementById('totalScore');
+            scoreEl.classList.add('wicket-animate');
+            setTimeout(() => scoreEl.classList.remove('wicket-animate'), 600);
             
             checkOverComplete();
             updateDisplay();
@@ -811,7 +830,7 @@
             document.getElementById('totalScore').textContent = `${gameState.totalRuns}/${gameState.currentWickets}`;
             document.getElementById('oversDisplay').textContent = `${gameState.currentOver}.${gameState.currentBall}`;
             document.getElementById('currentTeam').textContent = gameState.currentTeam;
-            document.getElementById('inningsDisplay').textContent = gameState.innings;
+            //document.getElementById('inningsDisplay').textContent = gameState.innings;
             
             // Calculate run rate
             let totalBalls = (gameState.currentOver * 6) + gameState.currentBall;
@@ -843,6 +862,10 @@
                 let ballsLeft = (gameState.totalOvers - gameState.currentOver) * 6 - gameState.currentBall;
                 let requiredRR = ballsLeft > 0 ? (remaining / ballsLeft * 6).toFixed(2) : '0.00';
                 document.getElementById('requiredRR').textContent = requiredRR;
+                //update overview
+                let runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
+                document.getElementById('runsRequiredInfo').style.display = 'block';
+                document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
             }
             
             // Update current over display
