@@ -194,13 +194,18 @@
             color: white;
         }
 
-        .extras-btn {
+        .extras-btn-wd {
             background: #e74c3c;
             color: white;
         }
 
-        .action-btn {
+        .extras-btn-nb {
             background: #f39c12;
+            color: white;
+        }
+
+        .action-btn {
+            background: #bdc3c7;
             color: white;
         }
 
@@ -235,8 +240,8 @@
         }
 
         .ball.runs { background: #3498db; }
-        .ball.wide { background: #e74c3c; }
-        .ball.noball { background: #f39c12; }
+        .ball.wide { background: #e74c3c; font-size: 9px;}
+        .ball.noball { background: #f39c12; font-size: 9px;}
         .ball.dot { background: #95a5a6; }
 
         .over-history {
@@ -327,7 +332,7 @@
         }
 
         .undo-btn {
-            background: #e67e22;
+            background: #f3d410;
             color: white;
             grid-column: span 3;
         }
@@ -470,7 +475,7 @@
                 </div>
             </div>
 
-            <div class="current-over" style="display: flex;">
+            <div class="current-over" style="display: flex;align-items: center;gap: 10px;">
                 <h5>Current Over</h5> <div class="balls" id="currentOverBalls"></div>
             </div>
 
@@ -481,8 +486,8 @@
                 <button class="score-btn runs-btn" onclick="addRuns(3)">3</button>
                 <button class="score-btn runs-btn" onclick="addRuns(4)">4</button>
                 <button class="score-btn runs-btn" onclick="addRuns(6)">6</button>
-                <button class="score-btn extras-btn" onclick="addWide()">WIDE</button>
-                <button class="score-btn extras-btn" onclick="addNoBall()">NO BALL</button>
+                <button class="score-btn extras-btn-wd" onclick="addWide()">WIDE</button>
+                <button class="score-btn extras-btn-nb" onclick="addNoBall()">NO BALL</button>
                 <button class="score-btn action-btn" onclick="addWicket()">WICKET</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
@@ -788,7 +793,6 @@
                 gameState.currentOver = 0;
                 gameState.currentBall = 0;
                 gameState.currentOverBalls = [];
-                
                 alert(`${gameState.battingFirst} scored ${gameState.target - 1}. ${gameState.currentTeam} needs ${gameState.target} to win!`);
             } else if(gameState.innings === 2 && gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || gameState.currentWickets == gameState.maxWickets)){
                 showCelebration(`Match Draw!`);
