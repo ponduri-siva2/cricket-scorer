@@ -992,8 +992,6 @@
                     gameState = JSON.parse(savedGame);
                     updateDisplay();
                     updateHistory();
-                    showScreen('scoring');
-                    document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
                 } catch (e) {
                     console.error("Failed to parse saved game state", e);
                 }
