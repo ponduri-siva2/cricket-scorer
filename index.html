@@ -491,6 +491,9 @@
                 <button class="score-btn action-btn" onclick="addWicket()">WICKET</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
+            <div style="text-align: center; margin-top: 10px;">
+                <button class="btn" style="background: #e74c3c;" onclick="clearStorage()">End game</button>
+            </div>
         </div>
 
         <!-- History Screen -->
@@ -513,10 +516,10 @@
                     <span>No-ball includes extra run</span>
                     <div class="toggle" id="noBallRunToggle" onclick="toggleSetting('noBallRun')"></div>
                 </div>
-                <div class="setting-item">
+                <!-- <div class="setting-item">
                     <span>Auto-save match data</span>
                     <div class="toggle active" id="autoSaveToggle" onclick="toggleSetting('autoSave')"></div>
-                </div>
+                </div> -->
                 <div class="setting-item">
                     <span>Show required run rate</span>
                     <div class="toggle active" id="showRRToggle" onclick="toggleSetting('showRR')"></div>
@@ -669,11 +672,13 @@
             updateDisplay();
             showScreen('settings')
             document.querySelector('[onclick="showScreen(\'settings\')"]').classList.add('active');
+            autoSaveCheck();
         }
 
         function startMatchWithOptions() {
             showScreen('scoring');
             document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
+            autoSaveCheck();
         }
 
         // Add runs
@@ -686,10 +691,12 @@
             gameState.lastAction = { type: 'runs', runs: runs };
             
             checkOverComplete();
+            debugger;
             updateDisplay();
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         // Add wide
@@ -707,6 +714,7 @@
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         // Add no ball
@@ -725,6 +733,7 @@
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         // Add wicket
@@ -756,6 +765,7 @@
             if (gameState.currentBall >= 6) {
                 completeOver();
             }
+            autoSaveCheck();
         }
 
         // Complete over
@@ -779,6 +789,7 @@
             if (gameState.currentOver >= gameState.totalOvers) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         // End innings
@@ -827,6 +838,7 @@
             gameState.currentOverBalls.pop();
             gameState.lastAction = null;
             updateDisplay();
+            autoSaveCheck();
         }
 
         // Update display
@@ -969,8 +981,66 @@
             `;
         }
 
+
+        // Load from localStorage
+        function loadFromLocalStorage() {
+            const savedGame = localStorage.getItem('cricketGameState');
+            const savedSettings = localStorage.getItem('cricketSettings');
+
+            if (savedGame) {
+                try {
+                    gameState = JSON.parse(savedGame);
+                    updateDisplay();
+                    updateHistory();
+                    showScreen('scoring');
+                    document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
+                } catch (e) {
+                    console.error("Failed to parse saved game state", e);
+                }
+            }
+
+            if (savedSettings) {
+                try {
+                    settings = JSON.parse(savedSettings);
+                    for (let key in settings) {
+                        let toggle = document.getElementById(`${key}Toggle`);
+                        if (toggle) toggle.classList.toggle('active', settings[key]);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse saved settings", e);
+                }
+            }
+        }
+
+        
+        function autoSaveCheck() {
+            if (settings.autoSave) {
+                localStorage.setItem('cricketGameState', JSON.stringify(gameState));
+                localStorage.setItem('cricketSettings', JSON.stringify(settings));
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('cricketGameState');
+            localStorage.removeItem('cricketSettings');
+            alert('Game ended');
+            location.reload(); // reload the page to reset
+        }
+
         // Initialize
         updateDisplay();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFromLocalStorage();
+            document.getElementById('currentInnings').addEventListener('change', function() {
+                document.getElementById('targetForm').style.display = this.value === '2' ? 'block' : 'none';
+            });
+
+            // Update toss winner names
+            document.getElementById('team1').addEventListener('input', updateTossOptions);
+            document.getElementById('team2').addEventListener('input', updateTossOptions);
+        });
+
     </script>
 </body>
 </html>
