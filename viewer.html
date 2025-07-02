@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Match Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: white;
+      border-radius: 10px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+    }
+
+    #inputSection {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    input {
+      padding: 10px;
+      width: 200px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      background: #3498db;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    .score {
+      font-size: 2.2em;
+      font-weight: bold;
+      margin: 20px 0;
+      color: #2c3e50;
+    }
+
+    .label-line {
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+
+    .over-history {
+      margin-top: 30px;
+      text-align: left;
+    }
+
+    .over-item {
+      background: #ecf0f1;
+      margin-bottom: 10px;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .over-item h4 {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏏 Match Score Viewer</h1>
+
+    <div id="inputSection">
+      <input type="text" id="matchIdInput" placeholder="Enter Match ID" />
+      <button onclick="loadMatch()">Go</button>
+    </div>
+
+    <div id="scoreSection" style="display: none;">
+      <p class="score" id="scoreDisplay">Score: -</p>
+      <p class="label-line">Team: <span id="teamName">-</span></p>
+      <p class="label-line">Overs: <span id="overs">-</span></p>
+      <p class="label-line">Run Rate: <span id="runRate">-</span></p>
+
+      <div class="over-history" id="historyContainer">
+        <h3>Over History</h3>
+        <div id="overList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'https://6865207d5b5d8d03397fd0a4.mockapi.io/api/v1/match';
+
+    function loadMatch() {
+      const matchId = document.getElementById('matchIdInput').value.trim();
+      if (!matchId) {
+        alert("Please enter a Match ID");
+        return;
+      }
+
+      fetch(`${API_URL}/${matchId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.data) {
+            const gameState = JSON.parse(data.data);
+            displayMatch(gameState);
+          } else {
+            alert("Match not found");
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Failed to load match");
+        });
+    }
+
+    function displayMatch(state) {
+      document.getElementById('scoreSection').style.display = 'block';
+      document.getElementById('scoreDisplay').textContent = `Score: ${state.totalRuns}/${state.currentWickets}`;
+      document.getElementById('teamName').textContent = state.currentTeam;
+      document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
+      const balls = (state.currentOver * 6) + state.currentBall;
+      const rr = balls ? (state.totalRuns / balls * 6).toFixed(2) : '0.00';
+      document.getElementById('runRate').textContent = rr;
+
+      const overList = document.getElementById('overList');
+      overList.innerHTML = '';
+
+      (state.overHistory || []).reverse().forEach(over => {
+        const div = document.createElement('div');
+        div.className = 'over-item';
+        div.innerHTML = `
+          <h4>Over ${over.overNumber} - ${over.team} (Innings ${over.innings})</h4>
+          <p><strong>Balls:</strong> ${over.balls.map(b => b.value).join(' ')}</p>
+          <p><strong>Runs:</strong> ${over.runs}</p>
+        `;
+        overList.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>

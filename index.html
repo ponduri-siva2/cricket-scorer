@@ -494,6 +494,9 @@
                 <button class="score-btn action-btn" onclick="addRunOut(2)">RUN OUT +2</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
+            <div style="text-align: center; margin-top: 20px;">
+                <button class="btn btn-success" onclick="publishMatch()">📤 Publish Match</button>
+            </div>
             <div style="text-align: center; margin-top: 10px;">
                 <button class="btn" style="background: #e74c3c;" onclick="clearStorage()">End game</button>
             </div>
@@ -567,6 +570,56 @@
             showRR: true,
             lastPlayerCanBat: true
         };
+
+        const API_URL = 'https://6865207d5b5d8d03397fd0a4.mockapi.io/api/v1/match';
+
+        function publishMatch() {
+            const matchData = {
+                data: JSON.stringify(gameState)
+            };
+
+            const existingMatchId = localStorage.getItem('publishedMatchId');
+
+            if (existingMatchId) {
+                // 🔁 Update existing match (PUT)
+                fetch(`${API_URL}/${existingMatchId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(matchData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`Match updated successfully (ID: ${data.id})`);
+                    console.log("Updated:", data);
+                })
+                .catch(err => {
+                    console.error("Update failed:", err);
+                    alert("Failed to update match");
+                });
+
+            } else {
+                // 🆕 First time publish (POST)
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(matchData)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    alert(`Match published! ID: ${data.id}`);
+                    localStorage.setItem('publishedMatchId', data.id); // save match ID
+                    console.log("Published:", data);
+                })
+                .catch(err => {
+                    console.error("Publish failed:", err);
+                    alert("Failed to publish match");
+                });
+            }
+        }
 
         // Toggle resume form
         function toggleResume() {
@@ -1080,6 +1133,7 @@
         function clearStorage() {
             localStorage.removeItem('cricketGameState');
             localStorage.removeItem('cricketSettings');
+            localStorage.removeItem('publishedMatchId');
             alert('Game ended');
             location.reload(); // reload the page to reset
         }
