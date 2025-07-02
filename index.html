@@ -195,7 +195,7 @@
         }
 
         .extras-btn-wd {
-            background: #e74c3c;
+            background: #bdc3c7;
             color: white;
         }
 
@@ -205,7 +205,7 @@
         }
 
         .action-btn {
-            background: #bdc3c7;
+            background: #e74c3c;
             color: white;
         }
 
@@ -240,9 +240,10 @@
         }
 
         .ball.runs { background: #3498db; }
-        .ball.wide { background: #e74c3c; font-size: 9px;}
+        .ball.wide { background: #95a5a6; font-size: 9px;}
         .ball.noball { background: #f39c12; font-size: 9px;}
         .ball.dot { background: #95a5a6; }
+        .ball.wicket {background: #e74c3c; font-size: 9px;}
 
         .over-history {
             max-height: 400px;
@@ -487,8 +488,10 @@
                 <button class="score-btn runs-btn" onclick="addRuns(4)">4</button>
                 <button class="score-btn runs-btn" onclick="addRuns(6)">6</button>
                 <button class="score-btn extras-btn-wd" onclick="addWide()">WIDE</button>
-                <button class="score-btn extras-btn-nb" onclick="addNoBall()">NO BALL</button>
+                <button class="score-btn extras-btn-nb" onclick="promptNoBallRuns()">NO BALL</button>
                 <button class="score-btn action-btn" onclick="addWicket()">WICKET</button>
+                <button class="score-btn action-btn" onclick="addRunOut(1)">RUN OUT +1</button>
+                <button class="score-btn action-btn" onclick="addRunOut(2)">RUN OUT +2</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
             <div style="text-align: center; margin-top: 10px;">
@@ -691,7 +694,6 @@
             gameState.lastAction = { type: 'runs', runs: runs };
             
             checkOverComplete();
-            debugger;
             updateDisplay();
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
@@ -717,24 +719,66 @@
             autoSaveCheck();
         }
 
-        // Add no ball
-        function addNoBall() {
-            let extraRuns = settings.noBallRun ? 1 : 0;
-            
-            gameState.totalRuns += extraRuns;
-            
-            let displayValue = settings.noBallRun ? 'Nb+1' : 'Nb+0';
-            
-            let ballData = { type: 'noball', value: displayValue };
+        function promptNoBallRuns() {
+            let userInput = prompt("Enter runs scored on No Ball (0, 1, 2, 3, 4, 6):", "1");
+
+            if (userInput === null) return; // Cancel pressed
+
+            let runs = parseInt(userInput);
+
+            if (![0, 1, 2, 3, 4, 6].includes(runs)) {
+                alert("Invalid input. Please enter 0, 1, 2, 3, 4, or 6.");
+                return;
+            }
+
+            addNoBallWithRuns(runs);
+        }
+
+        function addRunOut(runs) {
+            gameState.totalRuns += runs;
+            gameState.currentWickets++;
+            gameState.currentBall++;
+
+            let ballData = { type: 'wicket', value: `RO+${runs}` };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'noball', runs: extraRuns };
-            
+            gameState.lastAction = { type: 'runout', runs };
+
+            checkOverComplete();
             updateDisplay();
-            if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
+
+            // Animation
+            const scoreEl = document.getElementById('totalScore');
+            scoreEl.classList.add('wicket-animate');
+            setTimeout(() => scoreEl.classList.remove('wicket-animate'), 600);
+
+            let maxWickets = settings.lastPlayerCanBat ? gameState.totalWickets : gameState.totalWickets - 1;
+            if (gameState.currentWickets >= maxWickets) {
                 endInnings();
             }
+        }
+
+        function addNoBallWithRuns(runs) {
+            // Include base 1 run for No Ball if setting is enabled
+            let baseNoBallRun = settings.noBallRun ? 1 : 0;
+            let totalNoBallRuns = baseNoBallRun + runs;
+
+            gameState.totalRuns += totalNoBallRuns;
+
+            let displayValue = `Nb+${totalNoBallRuns}`;
+            let ballData = { type: 'noball', value: displayValue };
+
+            gameState.currentOverBalls.push(ballData);
+            gameState.lastAction = { type: 'noball', runs: totalNoBallRuns };
+
+            updateDisplay();
+
+            if (gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
+                endInnings();
+            }
+
             autoSaveCheck();
         }
+
 
         // Add wicket
         function addWicket() {
@@ -774,7 +818,13 @@
                 overNumber: gameState.currentOver + 1,
                 balls: [...gameState.currentOverBalls],
                 runs: gameState.currentOverBalls.reduce((sum, ball) => {
-                    return sum + (typeof ball.value === 'number' ? ball.value : 0);
+                    if (typeof ball.value === 'number') {
+                        return sum + ball.value;
+                    } else if (typeof ball.value === 'string') {
+                        let match = ball.value.match(/\+(\d+)/); // match +number
+                        return match ? sum + parseInt(match[1]) : sum;
+                    }
+                    return sum;
                 }, 0),
                 team: gameState.currentTeam,
                 innings: gameState.innings
@@ -831,6 +881,10 @@
             } else if (action.type === 'wide' || action.type === 'noball') {
                 gameState.totalRuns -= action.runs;
             } else if (action.type === 'wicket') {
+                gameState.currentWickets--;
+                gameState.currentBall--;
+            } else if (action.type === 'runout') {
+                gameState.totalRuns -= action.runs;
                 gameState.currentWickets--;
                 gameState.currentBall--;
             }
@@ -1007,6 +1061,11 @@
                 } catch (e) {
                     console.error("Failed to parse saved settings", e);
                 }
+            }
+
+            if (savedGame) {
+                showScreen('scoring');
+                document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
             }
         }
 
