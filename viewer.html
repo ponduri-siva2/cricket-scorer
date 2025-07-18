@@ -108,6 +108,16 @@
       color: #2c3e50;
     }
 
+    .over-item.innings-1 {
+      background: #e8f5e8;
+      border-left: 4px solid #27ae60;
+    }
+
+    .over-item.innings-2 {
+      background: #e8f4fd;
+      border-left: 4px solid #3498db;
+    }
+
     .over-item {
       background: #ecf0f1;
       margin-bottom: 8px;
@@ -248,6 +258,10 @@
         -
       </div>
 
+      <div id="requiredRunRateInfo" style="display: none; background: #f39c12; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+        -
+      </div>
+
       <div id="currentOverSection" style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
         <h3 style="font-size: 1em; margin-bottom: 8px; color: #2c3e50;">Current Over</h3>
         <div id="currentOverBalls" style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
@@ -335,20 +349,25 @@
 
         // Show runs required for 2nd innings
         if (state.innings === 2 && state.target) {
-            const remaining = state.target - state.totalRuns;
-            const totalBalls = 20 * 6; // Assuming 20 overs match
-            const ballsPlayed = (state.currentOver * 6) + state.currentBall;
-            const ballsLeft = totalBalls - ballsPlayed;
+            let remaining = state.target - state.totalRuns;
+            let ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
+            let requiredRR = ballsLeft > 0 ? (remaining / ballsLeft * 6).toFixed(2) : '0.00';
             
             if (remaining > 0 && ballsLeft > 0) {
                 const runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
                 document.getElementById('runsRequiredInfo').style.display = 'block';
                 document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
+                
+                // Show required run rate
+                document.getElementById('requiredRunRateInfo').style.display = 'block';
+                document.getElementById('requiredRunRateInfo').textContent = `Required Run Rate: ${requiredRR}`;
             } else {
                 document.getElementById('runsRequiredInfo').style.display = 'none';
+                document.getElementById('requiredRunRateInfo').style.display = 'none';
             }
         } else {
             document.getElementById('runsRequiredInfo').style.display = 'none';
+            document.getElementById('requiredRunRateInfo').style.display = 'none';
         }
 
         // Display current over balls
@@ -376,7 +395,7 @@
                 })
             .forEach(over => {
                 const div = document.createElement('div');
-                div.className = 'over-item';
+                div.className = `over-item innings-${over.innings}`;
                 
                 const ballsHtml = over.balls.map(b => `<span class="ball">${b.value}</span>`).join(' ');
                 
