@@ -5,52 +5,59 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Match Viewer</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
-      padding: 20px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      padding: 8px;
       min-height: 100vh;
     }
 
     .container {
       width: 100%;
       max-width: 700px;
+      margin: 0 auto;
       background: white;
-      border-radius: 10px;
-      padding: 30px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      text-align: center;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     h1 {
-      margin-bottom: 30px;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      text-align: center;
     }
 
     #inputSection {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
+      gap: 8px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
     }
 
     input {
-      padding: 10px;
-      width: 200px;
-      border-radius: 5px;
+      padding: 8px;
+      width: 180px;
+      border-radius: 4px;
       border: 1px solid #ccc;
+      font-size: 14px;
     }
 
     button {
-      padding: 10px 20px;
+      padding: 8px 16px;
       border: none;
       background: #3498db;
       color: white;
-      border-radius: 5px;
+      border-radius: 4px;
       cursor: pointer;
+      font-size: 14px;
     }
 
     button:hover {
@@ -58,31 +65,151 @@
     }
 
     .score {
-      font-size: 2.2em;
+      font-size: 2.5em;
       font-weight: bold;
-      margin: 20px 0;
+      margin: 15px 0;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .stat-item {
+      background: #ecf0f1;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-label {
+      font-size: 0.8em;
+      color: #666;
+      margin-bottom: 2px;
+    }
+
+    .stat-value {
+      font-weight: bold;
+      font-size: 1.1em;
       color: #2c3e50;
     }
 
-    .label-line {
-      margin-bottom: 10px;
-      font-size: 1.1em;
+    .over-history {
+      margin-top: 20px;
     }
 
-    .over-history {
-      margin-top: 30px;
-      text-align: left;
+    .over-history h3 {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+      color: #2c3e50;
     }
 
     .over-item {
       background: #ecf0f1;
-      margin-bottom: 10px;
-      padding: 15px;
-      border-radius: 8px;
+      margin-bottom: 8px;
+      padding: 10px;
+      border-radius: 6px;
     }
 
     .over-item h4 {
-      margin-bottom: 10px;
+      font-size: 0.9em;
+      margin-bottom: 5px;
+      color: #2c3e50;
+    }
+
+    .over-item p {
+      font-size: 0.85em;
+      margin-bottom: 3px;
+      line-height: 1.3;
+    }
+
+    .balls-display {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 5px;
+    }
+
+    .ball {
+      background: #3498db;
+      color: white;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #ecf0f1;
+      font-size: 0.8em;
+      color: #666;
+    }
+
+    .no-content {
+      text-align: center;
+      color: #666;
+      font-size: 0.9em;
+      padding: 20px;
+    }
+
+    /* Mobile optimizations */
+    @media (max-width: 480px) {
+      body {
+        padding: 4px;
+      }
+
+      .container {
+        padding: 12px;
+        border-radius: 6px;
+      }
+
+      h1 {
+        font-size: 1.2em;
+        margin-bottom: 12px;
+      }
+
+      input {
+        width: 150px;
+        padding: 6px;
+      }
+
+      button {
+        padding: 6px 12px;
+      }
+
+      .score {
+        font-size: 2.2em;
+        margin: 12px 0;
+      }
+
+      .stats-grid {
+        gap: 8px;
+        margin-bottom: 15px;
+      }
+
+      .stat-item {
+        padding: 8px;
+      }
+
+      .over-item {
+        padding: 8px;
+        margin-bottom: 6px;
+      }
+
+      .over-item h4 {
+        font-size: 0.85em;
+      }
+
+      .over-item p {
+        font-size: 0.8em;
+      }
     }
   </style>
 </head>
@@ -97,17 +224,45 @@
 
     <div id="scoreSection" style="display: none;">
       <p class="score" id="scoreDisplay">Score: -</p>
-      <p class="label-line">Team: <span id="teamName">-</span></p>
-      <p class="label-line">Overs: <span id="overs">-</span></p>
-      <p class="label-line">Run Rate: <span id="runRate">-</span></p>
+      
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">Team</div>
+          <div class="stat-value" id="teamName">-</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Overs</div>
+          <div class="stat-value" id="overs">-</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Run Rate</div>
+          <div class="stat-value" id="runRate">-</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Status</div>
+          <div class="stat-value" id="inningsStatus">-</div>
+        </div>
+      </div>
+
+      <div id="runsRequiredInfo" style="display: none; background: #e74c3c; color: white; padding: 10px; border-radius: 6px; margin-bottom: 15px; text-align: center; font-weight: bold;">
+        -
+      </div>
+
+      <div id="currentOverSection" style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+        <h3 style="font-size: 1em; margin-bottom: 8px; color: #2c3e50;">Current Over</h3>
+        <div id="currentOverBalls" style="display: flex; flex-wrap: wrap; gap: 4px; justify-content: center;">
+          <span style="color: #666; font-size: 0.9em;">No balls bowled yet</span>
+        </div>
+      </div>
 
       <div class="over-history" id="historyContainer">
         <h3>Over History</h3>
         <div id="overList"></div>
       </div>
     </div>
+    
     <footer>
-      <p style="text-align: center;">&copy; Siva Ponduri. All rights reserved.</p>
+      <p>&copy; Siva Ponduri. All rights reserved.</p>
     </footer>
   </div>
 
@@ -176,15 +331,35 @@
         const inningsInfo = state.innings === 1 ? 'First Innings' : 
                            state.target ? `Chasing ${state.target}` : 'Second Innings';
         
-        // Add innings info if it doesn't exist
-        if (!document.getElementById('inningsInfo')) {
-            const inningsEl = document.createElement('p');
-            inningsEl.id = 'inningsInfo';
-            inningsEl.className = 'label-line';
-            inningsEl.innerHTML = `<strong>Status:</strong> <span id="inningsStatus">${inningsInfo}</span>`;
-            document.getElementById('runRate').parentNode.appendChild(inningsEl);
+        document.getElementById('inningsStatus').textContent = inningsInfo;
+
+        // Show runs required for 2nd innings
+        if (state.innings === 2 && state.target) {
+            const remaining = state.target - state.totalRuns;
+            const totalBalls = 20 * 6; // Assuming 20 overs match
+            const ballsPlayed = (state.currentOver * 6) + state.currentBall;
+            const ballsLeft = totalBalls - ballsPlayed;
+            
+            if (remaining > 0 && ballsLeft > 0) {
+                const runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
+                document.getElementById('runsRequiredInfo').style.display = 'block';
+                document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
+            } else {
+                document.getElementById('runsRequiredInfo').style.display = 'none';
+            }
         } else {
-            document.getElementById('inningsStatus').textContent = inningsInfo;
+            document.getElementById('runsRequiredInfo').style.display = 'none';
+        }
+
+        // Display current over balls
+        const currentOverBallsContainer = document.getElementById('currentOverBalls');
+        if (state.currentOverBalls && state.currentOverBalls.length > 0) {
+            const ballsHtml = state.currentOverBalls.map(ball => 
+                `<span class="ball">${ball.value}</span>`
+            ).join(' ');
+            currentOverBallsContainer.innerHTML = ballsHtml;
+        } else {
+            currentOverBallsContainer.innerHTML = '<span style="color: #666; font-size: 0.9em;">No balls bowled yet</span>';
         }
 
         const overList = document.getElementById('overList');
@@ -202,15 +377,18 @@
             .forEach(over => {
                 const div = document.createElement('div');
                 div.className = 'over-item';
+                
+                const ballsHtml = over.balls.map(b => `<span class="ball">${b.value}</span>`).join(' ');
+                
                 div.innerHTML = `
                     <h4>Over ${over.overNumber} - ${over.team} (Innings ${over.innings})</h4>
-                    <p><strong>Balls:</strong> ${over.balls.map(b => b.value).join(' ')}</p>
                     <p><strong>Runs:</strong> ${over.runs}</p>
+                    <div class="balls-display">${ballsHtml}</div>
                 `;
                 overList.appendChild(div);
             });
         } else {
-            overList.innerHTML = '<p style="text-align: center; color: #666;">No completed overs yet</p>';
+            overList.innerHTML = '<p class="no-content">No completed overs yet</p>';
         }
     }
 
