@@ -191,7 +191,15 @@
         overList.innerHTML = '';
 
         if (state.overHistory && state.overHistory.length > 0) {
-            state.overHistory.slice().reverse().forEach(over => {
+            state.overHistory
+                .slice()
+                .sort((a, b) => {
+                    if (a.innings !== b.innings) {
+                        return b.innings - a.innings; // Latest innings first
+                    }
+                    return b.overNumber - a.overNumber; // Latest over first within same innings
+                })
+            .forEach(over => {
                 const div = document.createElement('div');
                 div.className = 'over-item';
                 div.innerHTML = `
