@@ -113,53 +113,105 @@
 
   <script>
     const API_URL = 'https://6865207d5b5d8d03397fd0a4.mockapi.io/api/v1/match';
+    let currentMatchId = null;
+    let refreshInterval = null;
 
     function loadMatch() {
-      const matchId = document.getElementById('matchIdInput').value.trim();
-      if (!matchId) {
-        alert("Please enter a Match ID");
-        return;
-      }
+        const matchId = document.getElementById('matchIdInput').value.trim();
+        if (!matchId) {
+            alert("Please enter a Match ID");
+            return;
+        }
 
-      fetch(`${API_URL}/${matchId}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.data) {
-            const gameState = JSON.parse(data.data);
-            displayMatch(gameState);
-          } else {
-            alert("Match not found");
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          alert("Failed to load match");
-        });
+        currentMatchId = matchId;
+        fetchMatchData();
+        startAutoRefresh();
+    }
+
+    function fetchMatchData() {
+        if (!currentMatchId) return;
+
+        fetch(`${API_URL}/${currentMatchId}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.data) {
+                    const gameState = JSON.parse(data.data);
+                    displayMatch(gameState);
+                } else {
+                    console.log("Match not found or no data");
+                }
+            })
+            .catch(err => {
+                console.error("Failed to fetch match data:", err);
+            });
+    }
+
+    function startAutoRefresh() {
+        // Clear any existing interval
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+        
+        // Set up new interval to refresh every 10 seconds
+        refreshInterval = setInterval(fetchMatchData, 10000);
+        
+        console.log("Auto-refresh started for match ID:", currentMatchId);
     }
 
     function displayMatch(state) {
-      document.getElementById('scoreSection').style.display = 'block';
-      document.getElementById('scoreDisplay').textContent = `Score: ${state.totalRuns}/${state.currentWickets}`;
-      document.getElementById('teamName').textContent = state.currentTeam;
-      document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
-      const balls = (state.currentOver * 6) + state.currentBall;
-      const rr = balls ? (state.totalRuns / balls * 6).toFixed(2) : '0.00';
-      document.getElementById('runRate').textContent = rr;
+        document.getElementById('scoreSection').style.display = 'block';
+        
+        // Update title with match ID
+        document.querySelector('h1').innerHTML = `🏏 Match Viewer <small style="font-size: 0.4em; color: #666;">(ID: ${currentMatchId})</small>`;
+        
+        document.getElementById('scoreDisplay').textContent = `${state.totalRuns}/${state.currentWickets}`;
+        document.getElementById('teamName').textContent = state.currentTeam;
+        document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
+        
+        const balls = (state.currentOver * 6) + state.currentBall;
+        const rr = balls ? (state.totalRuns / balls * 6).toFixed(2) : '0.00';
+        document.getElementById('runRate').textContent = rr;
 
-      const overList = document.getElementById('overList');
-      overList.innerHTML = '';
+        // Show innings info
+        const inningsInfo = state.innings === 1 ? 'First Innings' : 
+                           state.target ? `Chasing ${state.target}` : 'Second Innings';
+        
+        // Add innings info if it doesn't exist
+        if (!document.getElementById('inningsInfo')) {
+            const inningsEl = document.createElement('p');
+            inningsEl.id = 'inningsInfo';
+            inningsEl.className = 'label-line';
+            inningsEl.innerHTML = `<strong>Status:</strong> <span id="inningsStatus">${inningsInfo}</span>`;
+            document.getElementById('runRate').parentNode.appendChild(inningsEl);
+        } else {
+            document.getElementById('inningsStatus').textContent = inningsInfo;
+        }
 
-      (state.overHistory || []).reverse().forEach(over => {
-        const div = document.createElement('div');
-        div.className = 'over-item';
-        div.innerHTML = `
-          <h4>Over ${over.overNumber} - ${over.team} (Innings ${over.innings})</h4>
-          <p><strong>Balls:</strong> ${over.balls.map(b => b.value).join(' ')}</p>
-          <p><strong>Runs:</strong> ${over.runs}</p>
-        `;
-        overList.appendChild(div);
-      });
+        const overList = document.getElementById('overList');
+        overList.innerHTML = '';
+
+        if (state.overHistory && state.overHistory.length > 0) {
+            state.overHistory.slice().reverse().forEach(over => {
+                const div = document.createElement('div');
+                div.className = 'over-item';
+                div.innerHTML = `
+                    <h4>Over ${over.overNumber} - ${over.team} (Innings ${over.innings})</h4>
+                    <p><strong>Balls:</strong> ${over.balls.map(b => b.value).join(' ')}</p>
+                    <p><strong>Runs:</strong> ${over.runs}</p>
+                `;
+                overList.appendChild(div);
+            });
+        } else {
+            overList.innerHTML = '<p style="text-align: center; color: #666;">No completed overs yet</p>';
+        }
     }
-  </script>
+
+    // Clean up interval when page is closed
+    window.addEventListener('beforeunload', function() {
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+        }
+    });
+</script>
 </body>
 </html>

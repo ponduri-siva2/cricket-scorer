@@ -495,7 +495,7 @@
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
             <div style="text-align: center; margin-top: 20px;">
-                <button class="btn btn-success" onclick="publishMatch()">📤 Publish Match</button>
+                <button class="btn btn-success" onclick="publishMatch(); alert(`Match published/updated! ID: ${localStorage.getItem('publishedMatchId') || 'New'}`)" >📤 Publish Match</button>
             </div>
             <div style="text-align: center; margin-top: 10px;">
                 <button class="btn" style="background: #e74c3c;" onclick="clearStorage()">End game</button>
@@ -584,7 +584,7 @@
             const existingMatchId = localStorage.getItem('publishedMatchId');
 
             if (existingMatchId) {
-                // 🔁 Update existing match (PUT)
+                // Update existing match (PUT) - Background call
                 fetch(`${API_URL}/${existingMatchId}`, {
                     method: 'PUT',
                     headers: {
@@ -594,16 +594,14 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    alert(`Match updated successfully (ID: ${data.id})`);
-                    console.log("Updated:", data);
+                    updateMatchIdDisplay(data.id);
                 })
                 .catch(err => {
-                    console.error("Update failed:", err);
-                    alert("Failed to update match");
+                    alert("Background update failed:", err);
                 });
 
             } else {
-                // 🆕 First time publish (POST)
+                // First time publish (POST)
                 fetch(API_URL, {
                     method: 'POST',
                     headers: {
@@ -613,14 +611,24 @@
                 })
                 .then(res => res.json())
                 .then(data => {
-                    alert(`Match published! ID: ${data.id}`);
-                    localStorage.setItem('publishedMatchId', data.id); // save match ID
-                    console.log("Published:", data);
+                    localStorage.setItem('publishedMatchId', data.id);
+                    updateMatchIdDisplay(data.id);
                 })
                 .catch(err => {
-                    console.error("Publish failed:", err);
-                    alert("Failed to publish match");
+                    alert("Background publish failed:", err);
                 });
+            }
+        }
+
+        function updateMatchIdDisplay(matchId) {
+            document.querySelector('.header h1').innerHTML = `🏏 Cricket Scorer <small style="font-size: 0.4em; color: #bdc3c7;">(ID: ${matchId})</small>`;
+        }
+
+        function backgroundSyncMatch() {
+            // Only sync if match is already published
+            const existingMatchId = localStorage.getItem('publishedMatchId');
+            if (existingMatchId) {
+                publishMatch(); // Will update existing match silently
             }
         }
 
@@ -754,6 +762,7 @@
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
             }
+            backgroundSyncMatch();
             autoSaveCheck();
         }
 
@@ -772,6 +781,7 @@
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
             }
+            backgroundSyncMatch();
             autoSaveCheck();
         }
 
@@ -807,6 +817,7 @@
             scoreEl.classList.add('wicket-animate');
             setTimeout(() => scoreEl.classList.remove('wicket-animate'), 600);
 
+            backgroundSyncMatch();
             let maxWickets = settings.lastPlayerCanBat ? gameState.totalWickets : gameState.totalWickets - 1;
             if (gameState.currentWickets >= maxWickets) {
                 endInnings();
@@ -852,6 +863,7 @@
             
             checkOverComplete();
             updateDisplay();
+            backgroundSyncMatch();
             
             // Check if innings should end
             let maxWickets = settings.lastPlayerCanBat ? gameState.totalWickets : gameState.totalWickets - 1;
@@ -865,6 +877,7 @@
             if (gameState.currentBall >= 6) {
                 completeOver();
             }
+            backgroundSyncMatch();
             autoSaveCheck();
         }
 
@@ -947,6 +960,7 @@
             
             gameState.currentOverBalls.pop();
             gameState.lastAction = null;
+            backgroundSyncMatch();
             updateDisplay();
             autoSaveCheck();
         }
@@ -1091,6 +1105,12 @@
             `;
         }
 
+        function displayStoredMatchId() {
+            const matchId = localStorage.getItem('publishedMatchId');
+            if (matchId) {
+                updateMatchIdDisplay(matchId);
+            }
+        }
 
         // Load from localStorage
         function loadFromLocalStorage() {
@@ -1122,6 +1142,7 @@
             if (savedGame) {
                 showScreen('scoring');
                 document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
+                displayStoredMatchId();
             }
         }
 
