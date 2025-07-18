@@ -285,6 +285,29 @@
     let currentMatchId = null;
     let refreshInterval = null;
 
+    // Function to get URL parameter
+    function getURLParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    // Function to update URL without refreshing page
+    function updateURL(matchId) {
+        const newURL = `${window.location.pathname}?id=${matchId}`;
+        window.history.replaceState({}, '', newURL);
+    }
+
+    // Initialize page when DOM loads
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlMatchId = getURLParameter('id');
+        if (urlMatchId) {
+            // Set the input field with the ID from URL
+            document.getElementById('matchIdInput').value = urlMatchId;
+            // Automatically load the match
+            loadMatch();
+        }
+    });
+
     function loadMatch() {
         const matchId = document.getElementById('matchIdInput').value.trim();
         if (!matchId) {
@@ -293,6 +316,8 @@
         }
 
         currentMatchId = matchId;
+        // Update URL with the match ID
+        updateURL(matchId);
         fetchMatchData();
         startAutoRefresh();
     }
