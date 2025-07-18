@@ -754,7 +754,7 @@
             if (navigator.share) {
                 navigator.share({
                     title: 'Cricket Match Live Score',
-                    text: 'Watch this cricket match live!',
+                    text: `${gameState.team1} vs ${gameState.team2} \n Watch this cricket match live! \n`,
                     url: shareUrl
                 });
             } else {
