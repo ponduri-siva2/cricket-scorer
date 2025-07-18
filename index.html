@@ -1035,24 +1035,32 @@
                 return;
             }
             
-            gameState.overHistory.reverse().forEach(over => {
-                let overEl = document.createElement('div');
-                let teamClass = over.team === gameState.team1 ? 'team1' : 'team2';
-                overEl.className = `over-item ${teamClass}`;
-                
-                let ballsText = over.balls.map(ball => {
-                    if (typeof ball.value === 'string') return ball.value;
-                    return ball.value;
-                }).join(' ');
-                
-                overEl.innerHTML = `
-                    <div class="team-badge">${over.team}</div>
-                    <h4>Over ${over.overNumber} - Innings ${over.innings}</h4>
-                    <p>Balls: ${ballsText}</p>
-                    <p>Runs: ${over.runs}</p>
-                `;
-                container.appendChild(overEl);
-            });
+            gameState.overHistory
+                .slice()
+                .sort((a, b) => {
+                    if (a.innings !== b.innings) {
+                        return b.innings - a.innings; // Latest innings first
+                    }
+                    return b.overNumber - a.overNumber; // Latest over first within same innings
+                })
+                .forEach(over => {
+                    let overEl = document.createElement('div');
+                    let teamClass = over.team === gameState.team1 ? 'team1' : 'team2';
+                    overEl.className = `over-item ${teamClass}`;
+                    
+                    let ballsText = over.balls.map(ball => {
+                        if (typeof ball.value === 'string') return ball.value;
+                        return ball.value;
+                    }).join(' ');
+                    
+                    overEl.innerHTML = `
+                        <div class="team-badge">${over.team}</div>
+                        <h4>Over ${over.overNumber} - Innings ${over.innings}</h4>
+                        <p>Balls: ${ballsText}</p>
+                        <p>Runs: ${over.runs}</p>
+                    `;
+                    container.appendChild(overEl);
+                });
         }
 
         // Toggle settings
