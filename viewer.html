@@ -355,9 +355,6 @@
     function displayMatch(state) {
         document.getElementById('scoreSection').style.display = 'block';
         
-        // Update title with match ID
-        document.querySelector('h1').innerHTML = `🏏 Match Viewer <small style="font-size: 0.4em; color: #666;">(ID: ${currentMatchId})</small>`;
-        
         document.getElementById('scoreDisplay').textContent = `${state.totalRuns}/${state.currentWickets}`;
         document.getElementById('teamName').textContent = state.currentTeam;
         document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
