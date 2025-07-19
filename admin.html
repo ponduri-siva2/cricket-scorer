@@ -869,7 +869,9 @@
             currentOverBalls: [],
             overHistory: [],
             lastAction: null,
-            isResumed: false
+            isResumed: false,
+            tossWinner: '',
+            tossDecision: ''
         };
 
         // Settings
@@ -1018,6 +1020,8 @@
                 gameState.battingFirst = gameState.team2;
                 gameState.currentTeam = gameState.team2;
             }
+            gameState.tossWinner = tossWinner;
+            gameState.tossDecision = tossDecision;
             
             // Check if resuming from middle
             let resumeToggle = document.getElementById('resumeToggle');
@@ -1157,8 +1161,7 @@
         }
 
         function addNoBallWithRuns(runs) {
-            // No-ball always adds 1 to total runs (for the no-ball itself), plus any runs scored off the bat.
-            let baseNoBallRun = 1; 
+            let baseNoBallRun = settings.noBallRun ? 1 : 0;
             let totalNoBallRuns = baseNoBallRun + runs;
 
             gameState.totalRuns += totalNoBallRuns;
