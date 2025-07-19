@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cricket Score Counter</title>
     <style>
+        /* Keyframe Animations */
         @keyframes shake {
             0% { transform: rotate(0deg); }
             25% { transform: rotate(10deg); }
@@ -17,6 +18,18 @@
             animation: shake 0.6s ease-in-out;
         }
 
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Base Styles */
         * {
             margin: 0;
             padding: 0;
@@ -24,72 +37,125 @@
         }
 
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px; /* Reduced padding for mobile */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
         }
 
         .container {
+            width: 100%;
             max-width: 800px;
             margin: 0 auto;
             background: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             overflow: hidden;
+            animation: fadeIn 0.8s ease-out;
         }
 
         .header {
             background: linear-gradient(135deg, #2c3e50, #34495e);
             color: white;
-            padding: 20px;
+            padding: 20px 15px; /* Adjusted padding */
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2em; /* Adjusted for mobile */
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap; /* Allow wrapping for long IDs */
         }
 
+        .header h1 small {
+            font-size: 0.5em;
+            color: #bdc3c7;
+        }
+
+        #shareContainer {
+            margin-top: 10px;
+        }
+
+        #shareBtn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 1em; /* Adjusted for mobile */
+            padding: 8px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #shareBtn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Navigation */
         .nav {
             display: flex;
             background: #34495e;
             border-top: 1px solid #465669;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .nav-btn {
             flex: 1;
-            padding: 15px;
+            padding: 15px 10px;
             background: none;
             border: none;
             color: white;
             cursor: pointer;
-            transition: background 0.3s;
-            font-size: 16px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            font-size: 0.9em; /* Adjusted for mobile */
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .nav-btn:hover {
             background: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
         }
 
         .nav-btn.active {
             background: #3498db;
+            font-weight: bold;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
         }
 
+        /* Screen Layouts */
         .screen {
             display: none;
-            padding: 30px;
-            min-height: 500px;
+            padding: 20px 15px; /* Adjusted padding */
+            min-height: 400px; /* Min-height for consistency */
+            animation: fadeIn 0.5s ease-out;
         }
 
         .screen.active {
             display: block;
         }
 
+        /* Form Styles */
         .setup-form {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px; /* Reduced gap for mobile */
             max-width: 400px;
             margin: 0 auto;
         }
@@ -97,40 +163,49 @@
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px; /* Reduced gap */
         }
 
         .form-group label {
             font-weight: bold;
             color: #2c3e50;
+            font-size: 0.9em;
         }
 
-        .form-group input {
-            padding: 12px;
-            border: 2px solid #bdc3c7;
+        .form-group input,
+        .form-group select {
+            padding: 10px; /* Adjusted padding */
+            border: 1px solid #bdc3c7;
             border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            font-size: 1em;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%; /* Ensure full width */
         }
 
-        .form-group input:focus {
+        .form-group input:focus,
+        .form-group select:focus {
             outline: none;
             border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
 
         .btn {
-            padding: 12px 24px;
+            padding: 12px 20px;
             background: #3498db;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: background 0.3s;
+            font-size: 1em;
+            transition: background 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%; /* Full width button */
         }
 
         .btn:hover {
             background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
         }
 
         .btn-success {
@@ -141,11 +216,26 @@
             background: #229954;
         }
 
+        /* Resume Form Specific Styles */
+        #resumeForm {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #e0e0e0;
+        }
+
+        #resumeForm h3 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Scoring Area */
         .scoring-area {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            grid-template-columns: 1fr; /* Stack on mobile */
+            gap: 20px; /* Reduced gap */
+            margin-bottom: 20px;
         }
 
         .score-display {
@@ -153,35 +243,60 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .total-score {
-            font-size: 3em;
+            font-size: 2.8em; /* Adjusted for mobile */
             font-weight: bold;
             color: #2c3e50;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .over-info {
-            font-size: 1.2em;
+        .over-info, #targetInfo, #firstInningsInfo {
+            font-size: 1em; /* Adjusted for mobile */
             color: #7f8c8d;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap; /* Allow wrapping */
         }
 
+        #runsRequiredInfo {
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: -5px; /* Adjusted margin */
+            margin-bottom: 15px;
+            color: #e42529;
+            text-align: center;
+            animation: pulse 1s infinite;
+            padding: 5px;
+            background: rgba(228, 37, 41, 0.08);
+            border-radius: 5px;
+        }
+
+        /* Controls */
         .controls {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            grid-template-columns: repeat(3, 1fr); /* 3 columns on mobile */
+            gap: 10px; /* Reduced gap */
             margin-bottom: 20px;
         }
 
         .score-btn {
-            padding: 15px;
-            font-size: 18px;
+            padding: 12px; /* Adjusted padding */
+            font-size: 1.1em; /* Adjusted font size */
             font-weight: bold;
             border: none;
             border-radius: 10px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+
+        .score-btn:active { /* Added active state for tactile feedback */
+            transform: translateY(1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
         .score-btn:hover {
@@ -195,7 +310,7 @@
         }
 
         .extras-btn-wd {
-            background: #bdc3c7;
+            background: #95a5a6; /* Changed for better contrast */
             color: white;
         }
 
@@ -209,27 +324,44 @@
             color: white;
         }
 
-        .current-over {
-            background: #ecf0f1;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        .undo-btn {
+            background: #f1c40f; /* Changed for better visibility */
+            color: #333; /* Darker text for contrast */
+            grid-column: span 3; /* Full width for undo */
+        }
+        .undo-btn:hover {
+             background: #e6b70e;
         }
 
-        .current-over h3 {
-            margin-bottom: 10px;
+
+        /* Current Over Display */
+        .current-over {
+            background: #ecf0f1;
+            padding: 12px; /* Adjusted padding */
+            border-radius: 10px;
+            margin-bottom: 15px; /* Reduced margin */
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap; /* Allow balls to wrap */
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .current-over h5 {
+            margin-bottom: 0;
             color: #2c3e50;
+            font-size: 0.9em;
         }
 
         .balls {
             display: flex;
             gap: 5px;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Allow wrapping of balls */
         }
 
         .ball {
-            width: 25px;
-            height: 25px;
+            min-width: 30px; /* Larger touch target */
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -237,17 +369,21 @@
             background: #bdc3c7;
             color: white;
             font-weight: bold;
+            font-size: 0.9em; /* Adjusted font size */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
         .ball.runs { background: #3498db; }
-        .ball.wide { background: #95a5a6; font-size: 9px;}
-        .ball.noball { background: #f39c12; font-size: 9px;}
+        .ball.wide { background: #95a5a6; font-size: 0.7em;}
+        .ball.noball { background: #f39c12; font-size: 0.7em;}
         .ball.dot { background: #95a5a6; }
-        .ball.wicket {background: #e74c3c; font-size: 9px;}
+        .ball.wicket {background: #e74c3c; font-size: 0.7em;}
 
+        /* Over History */
         .over-history {
-            max-height: 400px;
+            max-height: 350px; /* Adjusted max height */
             overflow-y: auto;
+            padding-right: 5px; /* For scrollbar spacing */
         }
 
         .over-item {
@@ -255,26 +391,34 @@
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 8px;
-            border-left: 4px solid #3498db;
+            border-left: 5px solid #3498db; /* Thicker border */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease;
+        }
+
+        .over-item:hover {
+            transform: translateX(5px);
         }
 
         .over-item.team1 {
             background: linear-gradient(135deg, #e3f2fd, #f8f9fa);
-            border-left: 4px solid #2196f3;
+            border-left: 5px solid #2196f3;
         }
 
         .over-item.team2 {
             background: linear-gradient(135deg, #fff3e0, #f8f9fa);
-            border-left: 4px solid #ff9800;
+            border-left: 5px solid #ff9800;
         }
 
         .over-item .team-badge {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.7em;
             font-weight: bold;
             margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .over-item.team1 .team-badge {
@@ -287,10 +431,24 @@
             color: white;
         }
 
+        .over-item h4 {
+            font-size: 1.1em;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .over-item p {
+            font-size: 0.9em;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        /* Settings Screen */
         .settings-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1fr; /* Stack on mobile */
+            gap: 15px; /* Reduced gap */
+            margin-bottom: 20px;
         }
 
         .setting-item {
@@ -300,16 +458,23 @@
             padding: 15px;
             background: #f8f9fa;
             border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .setting-item span {
+            font-size: 0.95em;
+            color: #333;
         }
 
         .toggle {
             position: relative;
-            width: 60px;
-            height: 30px;
+            width: 50px; /* Smaller toggle for mobile */
+            height: 26px;
             background: #bdc3c7;
-            border-radius: 15px;
+            border-radius: 13px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s ease;
+            flex-shrink: 0; /* Prevent shrinking */
         }
 
         .toggle.active {
@@ -319,37 +484,190 @@
         .toggle::after {
             content: '';
             position: absolute;
-            width: 26px;
-            height: 26px;
+            width: 22px; /* Smaller circle */
+            height: 22px;
             background: white;
             border-radius: 50%;
             top: 2px;
             left: 2px;
-            transition: transform 0.3s;
+            transition: transform 0.3s ease, box-shadow 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
         .toggle.active::after {
-            transform: translateX(30px);
+            transform: translateX(24px); /* Adjusted translation */
         }
 
-        .undo-btn {
-            background: #f3d410;
-            color: white;
-            grid-column: span 3;
+        /* Footer */
+        footer {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 0.8em;
+            color: #7f8c8d;
+            text-align: center;
         }
 
-        @media (max-width: 768px) {
-            .scoring-area {
-                grid-template-columns: 1fr;
+        /* Celebration Screen */
+        body.celebration-mode {
+            background: #fdf6e3;
+            color: #333;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 50px;
+            display: block; /* Override flex for centered content */
+        }
+
+        body.celebration-mode h1 {
+            font-size: 3em;
+            color: #ff5722;
+            margin-bottom: 20px;
+        }
+
+        body.celebration-mode p {
+            font-size: 1.5em;
+        }
+
+        .confetti {
+            font-size: 2em;
+            animation: pop 1s ease-in-out infinite alternate;
+        }
+
+        @keyframes pop {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); color: #e91e63; }
+        }
+
+        /* Media Queries for larger screens (Tablets and Desktops) */
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+            }
+
+            .nav-btn {
+                font-size: 16px;
+                padding: 15px;
+            }
+
+            .screen {
+                padding: 30px;
+            }
+
+            .setup-form {
                 gap: 20px;
             }
 
+            .form-group label {
+                font-size: 1em;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 12px;
+                font-size: 1em;
+            }
+
+            .scoring-area {
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+            }
+
+            .total-score {
+                font-size: 3em;
+            }
+
+            .over-info, #targetInfo, #firstInningsInfo {
+                font-size: 1.2em;
+            }
+
+            #runsRequiredInfo {
+                font-size: 1.2em;
+            }
+
             .controls {
-                grid-template-columns: repeat(2, 1fr);
+                grid-template-columns: repeat(3, 1fr);
+                gap: 15px;
+            }
+
+            .score-btn {
+                padding: 15px;
+                font-size: 1.2em;
+            }
+
+            .undo-btn {
+                grid-column: span 3;
+            }
+
+            .current-over {
+                padding: 15px;
+                gap: 10px;
+            }
+
+            .current-over h5 {
+                font-size: 1em;
+            }
+
+            .ball {
+                min-width: 25px;
+                height: 25px;
+                font-size: 0.9em;
+            }
+
+            .ball.wide, .ball.noball, .ball.wicket {
+                font-size: 0.7em;
+            }
+
+            .over-history {
+                max-height: 400px;
+            }
+
+            .over-item {
+                padding: 15px;
+            }
+
+            .over-item .team-badge {
+                font-size: 12px;
+            }
+
+            .over-item h4 {
+                font-size: 1.2em;
+            }
+
+            .over-item p {
+                font-size: 1em;
             }
 
             .settings-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            .setting-item {
+                padding: 15px;
+            }
+
+            .setting-item span {
+                font-size: 1em;
+            }
+
+            .toggle {
+                width: 60px;
+                height: 30px;
+                border-radius: 15px;
+            }
+
+            .toggle::after {
+                width: 26px;
+                height: 26px;
+                top: 2px;
+                left: 2px;
+            }
+
+            .toggle.active::after {
+                transform: translateX(30px);
             }
         }
     </style>
@@ -357,22 +675,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏏 Cricket Scorer</h1>
+            <h1>🏏 Cricket Scorer <small id="matchIdDisplay"></small></h1>
             <div id="shareContainer" style="display: none; margin-top: 10px;">
-                <button id="shareBtn" onclick="shareMatch()" style="background: none; border: none; color: rgb(255, 255, 255); font-size: 1.5em; cursor: pointer; padding: 5px;" title="Share Match">
+                <button id="shareBtn" onclick="shareMatch()" title="Share Match">
                     🔗 Share Match
                 </button>
             </div>
         </div>
 
         <div class="nav">
-            <button class="nav-btn active" onclick="showScreen('setup')">📝 Setup</button>
-            <button class="nav-btn" onclick="showScreen('scoring')">🔢 Score</button>
-            <button class="nav-btn" onclick="showScreen('history')">🕒 Overs History</button>
-            <button class="nav-btn" onclick="showScreen('settings')">⚙️ Settings</button>
+            <button class="nav-btn active" onclick="showScreen('setup', this)">📝 Setup</button>
+            <button class="nav-btn" onclick="showScreen('scoring', this)">🔢 Score</button>
+            <button class="nav-btn" onclick="showScreen('history', this)">🕒 Overs History</button>
+            <button class="nav-btn" onclick="showScreen('settings', this)">⚙️ Settings</button>
         </div>
 
-        <!-- Setup Screen -->
         <div id="setup" class="screen active">
             <div class="setup-form">
                 <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Match Setup</h2>
@@ -400,11 +717,11 @@
                 <div class="form-group">
                     <label>Toss Winner & Decision:</label>
                     <div style="display: flex; gap: 10px; margin-top: 8px;">
-                        <select id="tossWinner" style="flex: 1; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px;">
+                        <select id="tossWinner">
                             <option value="team1">Team A</option>
                             <option value="team2">Team B</option>
                         </select>
-                        <select id="tossDecision" style="flex: 1; padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px;">
+                        <select id="tossDecision">
                             <option value="bat">Bat First</option>
                             <option value="field">Field First</option>
                         </select>
@@ -416,12 +733,12 @@
                     <div class="toggle" id="resumeToggle" onclick="toggleResume()"></div>
                 </div>
                 
-                <div id="resumeForm" style="display: none; background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                <div id="resumeForm" style="display: none;">
                     <h3 style="margin-bottom: 15px; color: #2c3e50;">Current Match State</h3>
                     
                     <div class="form-group">
                         <label for="currentInnings">Current Innings:</label>
-                        <select id="currentInnings" style="padding: 12px; border: 2px solid #bdc3c7; border-radius: 8px; width: 100%;">
+                        <select id="currentInnings">
                             <option value="1">1st Innings</option>
                             <option value="2">2nd Innings</option>
                         </select>
@@ -454,9 +771,8 @@
             </div>
         </div>
 
-        <!-- Scoring Screen -->
         <div id="scoring" class="screen">
-            <div id="runsRequiredInfo" style="display: none; text-align: center; font-size: 1em; font-weight: bold; margin-top: -10px; color: #e42529;"></div>
+            <div id="runsRequiredInfo" style="display: none;"></div>
             <div class="scoring-area">
                 <div class="score-display">
                     <div class="total-score" id="totalScore">0/0</div>
@@ -474,13 +790,12 @@
                         <div>Required RR: <span id="requiredRR">-</span></div>
                     </div>
                     <div id="firstInningsInfo">
-                        <!-- <div>Innings: <span id="inningsDisplay">1</span></div> -->
                         <div>Remaining: <span id="remaining">-</span></div>
                     </div>
                 </div>
             </div>
 
-            <div class="current-over" style="display: flex;align-items: center;gap: 10px;">
+            <div class="current-over">
                 <h5>Current Over</h5> <div class="balls" id="currentOverBalls"></div>
             </div>
 
@@ -503,7 +818,6 @@
             </div>
         </div>
 
-        <!-- History Screen -->
         <div id="history" class="screen">
             <h2 style="color: #2c3e50; margin-bottom: 20px;">Overs History</h2>
             <div class="over-history" id="overHistory">
@@ -511,7 +825,6 @@
             </div>
         </div>
 
-        <!-- Settings Screen -->
         <div id="settings" class="screen">
             <h2 style="text-align: center; color: #2c3e50; margin-bottom: 20px;">Settings</h2>
             <div class="settings-grid" style="margin-bottom: 20px;">
@@ -619,7 +932,7 @@
             }
         }
         function updateMatchIdDisplay(matchId) {
-            document.querySelector('.header h1').innerHTML = `🏏 Cricket Scorer <small style="font-size: 0.4em; color: #bdc3c7;">(ID: ${matchId})</small>`;
+            document.getElementById('matchIdDisplay').innerHTML = `(ID: ${matchId})`;
         }
 
         function backgroundSyncMatch() {
@@ -640,9 +953,11 @@
             toggle.classList.toggle('active');
             form.style.display = toggle.classList.contains('active') ? 'block' : 'none';
             
-            // Show target form if 2nd innings is selected
-            if (inningsSelect.value === '2') {
+            // Show target form if 2nd innings is selected and resume is active
+            if (toggle.classList.contains('active') && inningsSelect.value === '2') {
                 targetForm.style.display = 'block';
+            } else {
+                targetForm.style.display = 'none';
             }
         }
 
@@ -650,7 +965,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('currentInnings').addEventListener('change', function() {
                 let targetForm = document.getElementById('targetForm');
-                targetForm.style.display = this.value === '2' ? 'block' : 'none';
+                // Only show target form if resume toggle is active AND 2nd innings is selected
+                let resumeToggle = document.getElementById('resumeToggle');
+                if (resumeToggle.classList.contains('active') && this.value === '2') {
+                    targetForm.style.display = 'block';
+                } else {
+                    targetForm.style.display = 'none';
+                }
             });
             
             // Update toss winner names
@@ -668,21 +989,12 @@
                 <option value="team2">${team2Name}</option>
             `;
         }
-        function showScreen(screenName) {
+        function showScreen(screenName, element) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             
             document.getElementById(screenName).classList.add('active');
-            event.target.classList.add('active');
-        }
-
-        // Screen management
-        function showScreen(screenName) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            
-            document.getElementById(screenName).classList.add('active');
-            event.target.classList.add('active');
+            element.classList.add('active'); // Use the passed element directly
         }
 
         // Start match
@@ -735,15 +1047,13 @@
             }
             
             updateDisplay();
-            showScreen('settings')
-            document.querySelector('[onclick="showScreen(\'settings\')"]').classList.add('active');
+            showScreen('settings', document.querySelector('[onclick="showScreen(\'settings\', this)"]'))
             autoSaveCheck();
         }
 
         function startMatchWithOptions() {
             publishMatch();
-            showScreen('scoring');
-            document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
+            showScreen('scoring', document.querySelector('[onclick="showScreen(\'scoring\', this)"]'));
             autoSaveCheck();
         }
 
@@ -756,7 +1066,7 @@
                     title: 'Cricket Match Live Score',
                     text: `${gameState.team1} vs ${gameState.team2}\nWatch this cricket match live! \n`,
                     url: shareUrl
-                });
+                }).catch((error) => console.log('Sharing failed', error));
             } else {
                 // Fallback - copy to clipboard
                 navigator.clipboard.writeText(shareUrl).then(() => {
@@ -775,7 +1085,7 @@
             
             let ballData = { type: 'runs', value: runs };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'runs', runs: runs };
+            gameState.lastAction = { type: 'runs', runs: runs, ballAdded: true };
             
             checkOverComplete();
             updateDisplay();
@@ -790,13 +1100,13 @@
         function addWide() {
             let extraRuns = settings.wideRun ? 1 : 0;
             
-            gameState.totalRuns += extraRuns;
+            gameState.totalRuns += extraRuns + 1; // Wide is always 1 run + optional extra
             
-            let displayValue = settings.wideRun ? 'Wd+1' : 'Wd+0';
+            let displayValue = `Wd+${extraRuns + 1}`;
             
             let ballData = { type: 'wide', value: displayValue };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'wide', runs: extraRuns };
+            gameState.lastAction = { type: 'wide', runs: extraRuns + 1, ballAdded: false }; // Wide does not count as a ball
             updateDisplay();
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
@@ -806,13 +1116,13 @@
         }
 
         function promptNoBallRuns() {
-            let userInput = prompt("Enter runs scored on No Ball (0, 1, 2, 3, 4, 6):", "1");
+            let userInput = prompt("Enter runs scored on No Ball (0, 1, 2, 3, 4, 6):", "0"); // Changed default to 0
 
             if (userInput === null) return; // Cancel pressed
 
             let runs = parseInt(userInput);
 
-            if (![0, 1, 2, 3, 4, 6].includes(runs)) {
+            if (isNaN(runs) || ![0, 1, 2, 3, 4, 6].includes(runs)) {
                 alert("Invalid input. Please enter 0, 1, 2, 3, 4, or 6.");
                 return;
             }
@@ -827,7 +1137,7 @@
 
             let ballData = { type: 'wicket', value: `RO+${runs}` };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'runout', runs };
+            gameState.lastAction = { type: 'runout', runs: runs, ballAdded: true };
 
             checkOverComplete();
             updateDisplay();
@@ -842,20 +1152,23 @@
             if (gameState.currentWickets >= maxWickets) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         function addNoBallWithRuns(runs) {
-            // Include base 1 run for No Ball if setting is enabled
-            let baseNoBallRun = settings.noBallRun ? 1 : 0;
+            // No-ball always adds 1 to total runs (for the no-ball itself), plus any runs scored off the bat.
+            let baseNoBallRun = 1; 
             let totalNoBallRuns = baseNoBallRun + runs;
 
             gameState.totalRuns += totalNoBallRuns;
 
-            let displayValue = `Nb+${totalNoBallRuns}`;
+            let displayValue = `Nb+${runs}`; // Display runs scored off the bat for clarity
+            if (runs === 0) displayValue = 'Nb+0';
+            
             let ballData = { type: 'noball', value: displayValue };
 
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'noball', runs: totalNoBallRuns };
+            gameState.lastAction = { type: 'noball', runs: totalNoBallRuns, ballAdded: false }; // No-ball does not count as a ball
 
             updateDisplay();
 
@@ -863,6 +1176,7 @@
                 endInnings();
             }
 
+            backgroundSyncMatch();
             autoSaveCheck();
         }
 
@@ -874,7 +1188,7 @@
             
             let ballData = { type: 'wicket', value: 'W' };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'wicket' };
+            gameState.lastAction = { type: 'wicket', ballAdded: true };
 
             // Add animation to score
             const scoreEl = document.getElementById('totalScore');
@@ -890,6 +1204,7 @@
             if (gameState.currentWickets >= maxWickets) {
                 endInnings();
             }
+            autoSaveCheck();
         }
 
         // Check if over is complete
@@ -907,11 +1222,16 @@
                 overNumber: gameState.currentOver + 1,
                 balls: [...gameState.currentOverBalls],
                 runs: gameState.currentOverBalls.reduce((sum, ball) => {
-                    if (typeof ball.value === 'number') {
+                    if (ball.type === 'runs') {
                         return sum + ball.value;
-                    } else if (typeof ball.value === 'string') {
-                        let match = ball.value.match(/\+(\d+)/); // match +number
-                        return match ? sum + parseInt(match[1]) : sum;
+                    } else if (ball.type === 'wide') {
+                        // Wide already includes the extra run, so just add its value
+                        return sum + parseInt(ball.value.match(/\+(\d+)/)[1]);
+                    } else if (ball.type === 'noball') {
+                        // No-ball already includes the base run and bat runs, so just add its value
+                        return sum + parseInt(ball.value.match(/\+(\d+)/)[1]) + 1; // +1 for the no-ball itself
+                    } else if (ball.type === 'wicket' && ball.value.startsWith('RO')) {
+                         return sum + parseInt(ball.value.match(/\+(\d+)/)[1]);
                     }
                     return sum;
                 }, 0),
@@ -944,18 +1264,24 @@
                 gameState.currentBall = 0;
                 gameState.currentOverBalls = [];
                 alert(`${gameState.battingFirst} scored ${gameState.target - 1}. ${gameState.currentTeam} needs ${gameState.target} to win!`);
-            } else if(gameState.innings === 2 && gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || gameState.currentWickets == gameState.maxWickets)){
-                showCelebration(`Match Draw!`);
-            } else {
-                let winner = gameState.totalRuns >= gameState.target ? gameState.currentTeam : 
-                           (gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2);
-                let margin = gameState.totalRuns >= gameState.target ? 
-                           `by ${gameState.totalWickets - gameState.currentWickets} wickets` :
-                           `by ${gameState.target - gameState.totalRuns - 1} runs`;
-                           
-                showCelebration(`Match Over! ${winner} wins ${margin}!`);
+            } else if(gameState.innings === 2) {
+                let currentTeamTotalWickets = gameState.currentWickets;
+                let isAllOut = currentTeamTotalWickets >= maxWickets;
+
+                if (gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || isAllOut)){
+                    showCelebration(`Match Draw!`);
+                } else if (gameState.totalRuns >= gameState.target) {
+                    let winner = gameState.currentTeam;
+                    let margin = `by ${gameState.totalWickets - gameState.currentWickets} wickets`;
+                    showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                } else {
+                    let winner = gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2;
+                    let margin = `by ${gameState.target - gameState.totalRuns - 1} runs`;
+                    showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                }
             }
             updateDisplay();
+            autoSaveCheck();
         }
 
         // Undo last action
@@ -966,55 +1292,74 @@
             
             if (action.type === 'runs') {
                 gameState.totalRuns -= action.runs;
-                gameState.currentBall--;
-            } else if (action.type === 'wide' || action.type === 'noball') {
+                if (action.ballAdded) gameState.currentBall--;
+            } else if (action.type === 'wide') {
                 gameState.totalRuns -= action.runs;
+                // No change to currentBall for wide
+            } else if (action.type === 'noball') {
+                gameState.totalRuns -= action.runs;
+                // No change to currentBall for noball
             } else if (action.type === 'wicket') {
                 gameState.currentWickets--;
-                gameState.currentBall--;
+                if (action.ballAdded) gameState.currentBall--;
             } else if (action.type === 'runout') {
                 gameState.totalRuns -= action.runs;
                 gameState.currentWickets--;
-                gameState.currentBall--;
+                if (action.ballAdded) gameState.currentBall--;
             }
             
+            // Remove the last ball from currentOverBalls regardless of type
             gameState.currentOverBalls.pop();
-            gameState.lastAction = null;
+
+            // Clear last action after undoing
+            gameState.lastAction = null; 
+            
             backgroundSyncMatch();
             updateDisplay();
             autoSaveCheck();
         }
+
 
         // Update display
         function updateDisplay() {
             document.getElementById('totalScore').textContent = `${gameState.totalRuns}/${gameState.currentWickets}`;
             document.getElementById('oversDisplay').textContent = `${gameState.currentOver}.${gameState.currentBall}`;
             document.getElementById('currentTeam').textContent = gameState.currentTeam;
-            //document.getElementById('inningsDisplay').textContent = gameState.innings;
             
             // Calculate run rate
-            let totalBalls = (gameState.currentOver * 6) + gameState.currentBall;
-            let runRate = totalBalls > 0 ? (gameState.totalRuns / totalBalls * 6).toFixed(2) : '0.00';
+            let totalBallsFaced = (gameState.currentOver * 6);
+            if (gameState.currentBall > 0) { // Only add current balls if not a new over
+                totalBallsFaced += gameState.currentBall;
+            }
+            
+            let runRate = totalBallsFaced > 0 ? (gameState.totalRuns / totalBallsFaced * 6).toFixed(2) : '0.00';
             document.getElementById('runRate').textContent = runRate;
             
             // Show/hide target info based on innings
             if (gameState.innings === 1) {
                 document.getElementById('targetInfo').style.display = 'none';
                 document.getElementById('firstInningsInfo').style.display = 'block';
+                document.getElementById('runsRequiredInfo').style.display = 'none'; // Hide runs required in 1st innings
                 
                 // Calculate remaining overs and balls
-                let remainingOvers = gameState.totalOvers - gameState.currentOver;
+                let remainingOvers = gameState.totalOvers - gameState.currentOver - (gameState.currentBall === 0 ? 0 : 1);
                 let remainingBalls = 6 - gameState.currentBall;
-                if (gameState.currentBall === 0) remainingBalls = 0;
+                if (remainingBalls === 6) remainingBalls = 0; // If currentBall is 0, it's the start of an over, so no balls remaining in *current* over.
+
+                let remainingText;
+                if (gameState.currentOver >= gameState.totalOvers) {
+                    remainingText = "Innings Over";
+                } else if (gameState.currentBall === 0) { // Start of a new over
+                    remainingText = `${gameState.totalOvers - gameState.currentOver} overs left`;
+                } else { // Middle of an over
+                    remainingText = `${gameState.totalOvers - gameState.currentOver - 1} overs & ${6 - gameState.currentBall} balls left`;
+                }
                 
-                let remainingText = remainingBalls > 0 ? 
-                    `${remainingOvers-1}.${remainingBalls} overs` : 
-                    `${remainingOvers} overs`;
-                    
                 document.getElementById('remaining').textContent = remainingText;
             } else {
                 document.getElementById('targetInfo').style.display = 'block';
                 document.getElementById('firstInningsInfo').style.display = 'none';
+                document.getElementById('runsRequiredInfo').style.display = 'block';
                 
                 // Update target info
                 document.getElementById('target').textContent = gameState.target;
@@ -1024,7 +1369,6 @@
                 document.getElementById('requiredRR').textContent = requiredRR;
                 //update overview
                 let runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
-                document.getElementById('runsRequiredInfo').style.display = 'block';
                 document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
             }
             
@@ -1069,7 +1413,7 @@
                     overEl.className = `over-item ${teamClass}`;
                     
                     let ballsText = over.balls.map(ball => {
-                        if (typeof ball.value === 'string') return ball.value;
+                        // For display, just show the value as is
                         return ball.value;
                     }).join(' ');
                     
@@ -1088,48 +1432,17 @@
             settings[setting] = !settings[setting];
             let toggle = document.getElementById(setting + 'Toggle');
             toggle.classList.toggle('active', settings[setting]);
+            autoSaveCheck(); // Save settings when toggled
         }
 
         function showCelebration(message) {
+            document.body.classList.add('celebration-mode'); // Add class to body for celebration styles
             document.body.innerHTML = `
-            <style>
-                body {
-                background: #fdf6e3;
-                color: #333;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                text-align: center;
-                padding: 50px;
-                }
-
-                h1 {
-                font-size: 3em;
-                color: #ff5722;
-                margin-bottom: 20px;
-                }
-
-                p {
-                font-size: 1.5em;
-                }
-
-                .confetti {
-                font-size: 2em;
-                animation: pop 1s ease-in-out infinite alternate;
-                }
-
-                @keyframes pop {
-                from { transform: scale(1); }
-                to { transform: scale(1.1); color: #e91e63; }
-                }
-            </style>
-            ${message !== 'Match Draw!' ? `
             <div class="confetti">🎉🎉🎉</div>
-            <h1>Congratulations!</h1>
+            <h1>${message !== 'Match Draw!' ? 'Congratulations!' : 'Match Ended!'}</h1>
             <p>${message}</p>
-            <div class="confetti">✨🎈🍾</div>
-            `: `
-            <p>${message}</p>
-            <img alt="" style="height: 50%; width: 100%;" src="https://i.pinimg.com/736x/1a/e8/bc/1ae8bcdcef865fe7a50e34148c8cb1ce.jpg">
-            `}
+            <div class="confetti">${message !== 'Match Draw!' ? '✨🎈🍾' : ''}</div>
+            <button class="btn" style="background: #3498db; margin-top: 30px;" onclick="location.reload()">New Match</button>
             `;
         }
 
@@ -1169,8 +1482,7 @@
             }
 
             if (savedGame) {
-                showScreen('scoring');
-                document.querySelector('[onclick="showScreen(\'scoring\')"]').classList.add('active');
+                showScreen('scoring', document.querySelector('[onclick="showScreen(\'scoring\', this)"]'));
                 displayStoredMatchId();
             }
         }
@@ -1184,25 +1496,31 @@
         }
 
         function clearStorage() {
-            localStorage.removeItem('cricketGameState');
-            localStorage.removeItem('cricketSettings');
-            localStorage.removeItem('publishedMatchId');
-            alert('Game ended');
-            location.reload(); // reload the page to reset
+            if (confirm('Are you sure you want to end the current game and clear all data?')) {
+                localStorage.removeItem('cricketGameState');
+                localStorage.removeItem('cricketSettings');
+                localStorage.removeItem('publishedMatchId');
+                alert('Game ended and data cleared.');
+                location.reload(); // reload the page to reset
+            }
         }
 
         // Initialize
-        updateDisplay();
-
         document.addEventListener('DOMContentLoaded', function() {
             loadFromLocalStorage();
             document.getElementById('currentInnings').addEventListener('change', function() {
-                document.getElementById('targetForm').style.display = this.value === '2' ? 'block' : 'none';
+                // The toggleResume function now handles the targetForm visibility
+                // based on resumeToggle active state and currentInnings value.
+                // We just need to call it to re-evaluate.
+                toggleResume(); 
             });
 
             // Update toss winner names
             document.getElementById('team1').addEventListener('input', updateTossOptions);
             document.getElementById('team2').addEventListener('input', updateTossOptions);
+
+            // Initial call to update toss options
+            updateTossOptions();
         });
 
     </script>
