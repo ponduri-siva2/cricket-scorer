@@ -433,7 +433,7 @@
         if (state.innings === 1) {
             let oversCompleted = state.currentOver + (state.currentBall / 6);
             let runRate = state.totalRuns / oversCompleted;
-            let predictedScore = Math.round(runRate * gameState.totalOvers);
+            let predictedScore = Math.round(runRate * state.totalOvers);
             tickerParts.push(`Predicted Score: ${predictedScore}`);
         }
         

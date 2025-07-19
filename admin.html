@@ -1105,13 +1105,13 @@
         function addWide() {
             let extraRuns = settings.wideRun ? 1 : 0;
             
-            gameState.totalRuns += extraRuns + 1; // Wide is always 1 run + optional extra
+            gameState.totalRuns += extraRuns; // Wide is always 1 run + optional extra
             
-            let displayValue = `Wd+${extraRuns + 1}`;
+            let displayValue = `Wd+${extraRuns}`;
             
             let ballData = { type: 'wide', value: displayValue };
             gameState.currentOverBalls.push(ballData);
-            gameState.lastAction = { type: 'wide', runs: extraRuns + 1, ballAdded: false }; // Wide does not count as a ball
+            gameState.lastAction = { type: 'wide', runs: extraRuns, ballAdded: false }; // Wide does not count as a ball
             updateDisplay();
             if(gameState.innings === 2 && gameState.totalRuns >= gameState.target) {
                 endInnings();
