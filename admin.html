@@ -114,18 +114,19 @@
 
         .nav-btn {
             flex: 1;
-            padding: 15px 10px;
+            padding: 15px 5px; /* Reduced horizontal padding */
             background: none;
             border: none;
             color: white;
             cursor: pointer;
             transition: background 0.3s ease, transform 0.2s ease;
-            font-size: 0.9em; /* Adjusted for mobile */
+            font-size: 0.85em; /* Adjusted for mobile - slightly smaller */
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            white-space: nowrap;
+            white-space: normal; /* Allow text to wrap */
+            word-break: break-word; /* Break long words */
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: ellipsis; /* Still use ellipsis for overflow on single line */
         }
 
         .nav-btn:hover {
@@ -684,10 +685,10 @@
         </div>
 
         <div class="nav">
-            <button class="nav-btn active" onclick="showScreen('setup', this)">📝 Setup</button>
-            <button class="nav-btn" onclick="showScreen('scoring', this)">🔢 Score</button>
-            <button class="nav-btn" onclick="showScreen('history', this)">🕒 Overs History</button>
-            <button class="nav-btn" onclick="showScreen('settings', this)">⚙️ Settings</button>
+            <button class="nav-btn active" onclick="showScreen('setup', this)">Setup</button>
+            <button class="nav-btn" onclick="showScreen('scoring', this)">Score</button>
+            <button class="nav-btn" onclick="showScreen('history', this)">Overs History</button>
+            <button class="nav-btn" onclick="showScreen('settings', this)">Settings</button>
         </div>
 
         <div id="setup" class="screen active">
