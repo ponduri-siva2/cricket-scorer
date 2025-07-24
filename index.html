@@ -549,7 +549,7 @@
                 const ballsLeft = (totalOvers - currentOver) * 6 - currentBall;
                 const oversLeft = Math.floor(ballsLeft / 6);
                 const ballsInOver = ballsLeft % 6;
-                if (required > 0) {
+                if (required > 0 && ballsLeft > 0) {
                     targetInfo = `<div class="target-info">Need ${required} in ${oversLeft}.${ballsInOver} overs</div>`;
                 } else {
                     let status = ''
