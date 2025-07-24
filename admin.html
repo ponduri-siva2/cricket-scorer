@@ -807,11 +807,11 @@
                 <button class="score-btn runs-btn" onclick="addRuns(3)">3</button>
                 <button class="score-btn runs-btn" onclick="addRuns(4)">4</button>
                 <button class="score-btn runs-btn" onclick="addRuns(6)">6</button>
-                <button class="score-btn extras-btn-wd" onclick="addWide()">WIDE</button>
-                <button class="score-btn extras-btn-nb" onclick="promptNoBallRuns()">NO BALL</button>
                 <button class="score-btn action-btn" onclick="addWicket()">WICKET</button>
                 <button class="score-btn action-btn" onclick="addRunOut(1)">RUN OUT +1</button>
                 <button class="score-btn action-btn" onclick="addRunOut(2)">RUN OUT +2</button>
+                <button class="score-btn extras-btn-wd" onclick="addWide()">WIDE</button>
+                <button class="score-btn extras-btn-nb" onclick="promptNoBallRuns()">NO BALL</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
             </div>
             <div style="text-align: center; margin-top: 10px;">
@@ -988,8 +988,8 @@
             let tossWinner = document.getElementById('tossWinner');
             
             tossWinner.innerHTML = `
-                <option value="team1">${team1Name}</option>
-                <option value="team2">${team2Name}</option>
+                <option value="${team1Name}">${team1Name}</option>
+                <option value="${team2Name}">${team2Name}</option>
             `;
         }
         function showScreen(screenName, element) {
@@ -1255,7 +1255,6 @@
             autoSaveCheck();
         }
 
-        // End innings
         function endInnings() {
             let maxWickets = settings.lastPlayerCanBat ? gameState.totalWickets : gameState.totalWickets - 1;
             if (gameState.innings === 1) {
@@ -1268,23 +1267,33 @@
                 gameState.currentBall = 0;
                 gameState.currentOverBalls = [];
                 alert(`${gameState.battingFirst} scored ${gameState.target - 1}. ${gameState.currentTeam} needs ${gameState.target} to win!`);
+                updateDisplay();
+                backgroundSyncMatch(); // Publish after 1st innings
             } else if(gameState.innings === 2) {
                 let currentTeamTotalWickets = gameState.currentWickets;
                 let isAllOut = currentTeamTotalWickets >= maxWickets;
 
-                if (gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || isAllOut)){
-                    showCelebration(`Match Draw!`);
-                } else if (gameState.totalRuns >= gameState.target) {
-                    let winner = gameState.currentTeam;
-                    let margin = `by ${gameState.totalWickets - gameState.currentWickets} wickets`;
-                    showCelebration(`Match Over! ${winner} wins ${margin}!`);
-                } else {
-                    let winner = gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2;
-                    let margin = `by ${gameState.target - gameState.totalRuns - 1} runs`;
-                    showCelebration(`Match Over! ${winner} wins ${margin}!`);
-                }
+                // Update display before determining final result
+                updateDisplay();
+                
+                // Publish final match state before showing celebration
+                backgroundSyncMatch();
+                
+                // Small delay to ensure publish completes before celebration
+                setTimeout(() => {
+                    if (gameState.totalRuns == gameState.target - 1 && (gameState.currentOver == gameState.totalOvers || isAllOut)){
+                        showCelebration(`Match Draw!`);
+                    } else if (gameState.totalRuns >= gameState.target) {
+                        let winner = gameState.currentTeam;
+                        let margin = `by ${gameState.totalWickets - gameState.currentWickets} wickets`;
+                        showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                    } else {
+                        let winner = gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2;
+                        let margin = `by ${gameState.target - gameState.totalRuns - 1} runs`;
+                        showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                    }
+                }, 500); // 500ms delay to allow publish to complete
             }
-            updateDisplay();
             autoSaveCheck();
         }
 
@@ -1446,7 +1455,7 @@
             <h1>${message !== 'Match Draw!' ? 'Congratulations!' : 'Match Ended!'}</h1>
             <p>${message}</p>
             <div class="confetti">${message !== 'Match Draw!' ? '✨🎈🍾' : ''}</div>
-            <button class="btn" style="background: #3498db; margin-top: 30px;" onclick="location.reload()">New Match</button>
+            <button class="btn" style="background: #3498db; margin-top: 30px;" onclick="clearStorage()">New Match</button>
             `;
         }
 

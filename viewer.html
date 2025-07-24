@@ -430,7 +430,7 @@
         }
         
         // Predicted score
-        if (state.innings === 1) {
+        if (state.innings === 1 && state.totalRuns > 10) {
             let oversCompleted = state.currentOver + (state.currentBall / 6);
             let runRate = state.totalRuns / oversCompleted;
             let predictedScore = Math.round(runRate * state.totalOvers);

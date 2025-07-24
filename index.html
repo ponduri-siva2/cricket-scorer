@@ -199,8 +199,8 @@
         }
 
         .vs-indicator {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1rem;
+            font-weight: 600;
             opacity: 0.7;
             margin: 0.3rem 0;
             text-align: center;
@@ -564,9 +564,8 @@
                                 </div>
                             </div>
                             <div class="team-score">
-                                <div class="runs">${team1 === currentBattingTeam ? totalRuns : team1Score.runs}</div>
+                                <div class="runs">${team1 === currentBattingTeam ? totalRuns : team1Score.runs}/${team1 === currentBattingTeam ? currentWickets : team1Score.wickets}</div>
                                 <div class="wickets-overs">
-                                    ${team1 === currentBattingTeam ? currentWickets : team1Score.wickets}/${totalWickets} 
                                     (${team1 === currentBattingTeam ? currentOver : team1Score.overs}.${team1 === currentBattingTeam ? currentBall : 0})
                                 </div>
                             </div>
@@ -584,9 +583,8 @@
                                 </div>
                             </div>
                             <div class="team-score">
-                                <div class="runs">${team2 === currentBattingTeam ? totalRuns : team2Score.runs}</div>
+                                <div class="runs">${team2 === currentBattingTeam ? totalRuns : team2Score.runs}/${team2 === currentBattingTeam ? currentWickets : team2Score.wickets}</div>
                                 <div class="wickets-overs">
-                                    ${team2 === currentBattingTeam ? currentWickets : team2Score.wickets}/${totalWickets} 
                                     (${team2 === currentBattingTeam ? currentOver : team2Score.overs}.${team2 === currentBattingTeam ? currentBall : 0})
                                 </div>
                             </div>
