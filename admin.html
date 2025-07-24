@@ -1372,8 +1372,6 @@
             } else {
                 document.getElementById('targetInfo').style.display = 'block';
                 document.getElementById('firstInningsInfo').style.display = 'none';
-                document.getElementById('runsRequiredInfo').style.display = 'block';
-                
                 // Update target info
                 document.getElementById('target').textContent = gameState.target;
                 let remaining = gameState.target - gameState.totalRuns;
@@ -1381,8 +1379,13 @@
                 let requiredRR = ballsLeft > 0 ? (remaining / ballsLeft * 6).toFixed(2) : '0.00';
                 document.getElementById('requiredRR').textContent = requiredRR;
                 //update overview
-                let runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
-                document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
+                if(remaining > 0) {
+                    document.getElementById('runsRequiredInfo').style.display = 'block';
+                    let runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
+                    document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
+                } else {
+                    document.getElementById('runsRequiredInfo').style.display = 'none';
+                }
             }
             
             // Update current over display

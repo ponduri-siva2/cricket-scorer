@@ -195,7 +195,7 @@
         }
 
         .match-status.completed {
-            background: linear-gradient(45deg, #2196F3, #1976D2);
+            background: linear-gradient(45deg, #BDBDBD, #9E9E9E);
         }
 
         .vs-indicator {
@@ -283,6 +283,14 @@
         .match-details {
             font-size: 0.85rem;
             opacity: 0.8;
+        }
+
+        .final {
+            color: #FFC107;
+            padding: 0.3rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
         .target-info {
@@ -511,7 +519,10 @@
                 totalOvers,
                 totalWickets,
                 target,
-                overHistory
+                overHistory,
+                maxWickets,
+                tossWinner,
+                tossDecision
             } = matchData;
 
             // Calculate scores for both teams
@@ -538,12 +549,27 @@
                 const ballsLeft = (totalOvers - currentOver) * 6 - currentBall;
                 const oversLeft = Math.floor(ballsLeft / 6);
                 const ballsInOver = ballsLeft % 6;
-                
                 if (required > 0) {
                     targetInfo = `<div class="target-info">Need ${required} in ${oversLeft}.${ballsInOver} overs</div>`;
                 } else {
-                    targetInfo = `<div class="target-info">Target achieved!</div>`;
+                    let status = ''
+                    if (totalRuns == target - 1 && (currentOver == totalOvers || currentWickets >= maxWickets)){
+                        status = `Match Draw!`;
+                    } else if (totalRuns >= target) {
+                        let winner = currentTeam;
+                        let margin = `by ${totalWickets - currentWickets} wickets`;
+                        status = `${winner} wins ${margin}!`;
+                    } else {
+                        let winner = battingFirst === team1 ? team1 : team2;
+                        let margin = `by ${target - totalRuns - 1} runs`;
+                        status =`${winner} wins ${margin}!`;
+                    }
+                    matchStatus = 'Completed'
+                    statusClass = 'completed'
+                    targetInfo = `<div class="final">${status}</div>`;
                 }
+            } else {
+                targetInfo = `<div class="target-info">${tossWinner} opted ${tossDecision}</div>`
             }
 
             return `
