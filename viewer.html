@@ -476,7 +476,7 @@
         document.getElementById('runRate').textContent = rr;
 
         // Show innings info
-        const inningsInfo = state.innings === 1 ? 'First Innings' : 
+        let inningsInfo = state.innings === 1 ? 'First Innings' : 
                            state.target ? `Chasing ${state.target}` : 'Second Innings';
         
         if(state.innings === 2 && state.innings1Score) {
