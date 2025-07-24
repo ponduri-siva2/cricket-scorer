@@ -1012,8 +1012,8 @@
             let tossWinner = document.getElementById('tossWinner').value;
             let tossDecision = document.getElementById('tossDecision').value;
             
-            if ((tossWinner === 'team1' && tossDecision === 'bat') || 
-                (tossWinner === 'team2' && tossDecision === 'field')) {
+            if ((tossWinner === gameState.team1 && tossDecision === 'bat') || 
+                (tossWinner === gameState.team2 && tossDecision === 'field')) {
                 gameState.battingFirst = gameState.team1;
                 gameState.currentTeam = gameState.team1;
             } else {
@@ -1425,7 +1425,7 @@
                 })
                 .forEach(over => {
                     let overEl = document.createElement('div');
-                    let teamClass = over.team === gameState.team1 ? 'team1' : 'team2';
+                    let teamClass = over.team === gameState.team1 ? gameState.team1 : gameState.team2;
                     overEl.className = `over-item ${teamClass}`;
                     
                     let ballsText = over.balls.map(ball => {
