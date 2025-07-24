@@ -1260,7 +1260,7 @@
             if (gameState.innings === 1) {
                 gameState.target = gameState.totalRuns + 1;
                 gameState.innings = 2;
-                gameState.currentTeam = gameState.battingFirst === gameState.team1 ? gameState.team2 : gameState.team1;
+                gameState.currentTeam = gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2;
                 gameState.totalRuns = 0;
                 gameState.currentWickets = 0;
                 gameState.currentOver = 0;
