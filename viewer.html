@@ -440,7 +440,7 @@
         // First innings complete
         if (state.innings === 2 && state.target) {
             const firstInningsTeam = state.team1 === state.currentTeam ? state.team2 : state.team1;
-            tickerParts.push(`${firstInningsTeam} scored ${state.target - 1} in their first innings`);
+            tickerParts.push(`${firstInningsTeam} scored ${state.innings1Score} `);
             tickerParts.push(`${state.currentTeam} needs ${state.target} runs to win`);
         }
         // Default message if no specific info available
