@@ -479,6 +479,10 @@
         const inningsInfo = state.innings === 1 ? 'First Innings' : 
                            state.target ? `Chasing ${state.target}` : 'Second Innings';
         
+        if(state.innings === 2 && state.innings1Score) {
+          inningsInfo = state.innings1Score;
+          document.getElementById('inningsLabel').textContent = '1st Inn Total';
+        }
         document.getElementById('inningsStatus').textContent = inningsInfo;
 
         // Show runs required for 2nd innings

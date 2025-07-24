@@ -522,7 +522,8 @@
                 overHistory,
                 maxWickets,
                 tossWinner,
-                tossDecision
+                tossDecision,
+                dateTime
             } = matchData;
 
             // Calculate scores for both teams
@@ -620,6 +621,9 @@
                     <div class="match-info">
                         <div class="match-details">
                             ${totalOvers} overs • ${isSecondInnings ? 'Innings 2' : 'Innings 1'}
+                        </div>
+                        <div class="match-details">
+                            ${dateTime || ''}
                         </div>
                     </div>
                 </div>
