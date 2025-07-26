@@ -110,6 +110,15 @@
       }
     }
 
+    .result {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin: 15px 0;
+      color: #ca0909;
+      text-align: center;
+      display: none;
+    }
+
     .score {
       font-size: 2.5em;
       font-weight: bold;
@@ -305,6 +314,7 @@
         </div>
       </div>
 
+      <p class="result" id="matchResult">Match result</p>
       <p class="score" id="scoreDisplay">Score: -</p>
       <p class="score1" id="extrasScoreDisplay">Extras: -</p>
       
@@ -475,6 +485,25 @@
         document.getElementById('teamName').textContent = state.currentTeam;
         document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
         document.getElementById('extrasScoreDisplay').textContent = `Extras: ${state.extraRuns}`;
+
+        if(state.innings === 2 && state.target) {
+          if(!(state.required > 0 && state.ballsLeft > 0)) {
+            let status = ''
+            if (state.totalRuns == state.target - 1 && (state.currentOver == state.totalOvers || state.currentWickets >= state.maxWickets)){
+                status = `Match Draw!`;
+            } else if (state.totalRuns >= state.target) {
+                let winner = state.currentTeam;
+                let margin = `by ${state.totalWickets - state.currentWickets} wickets`;
+                status = `${winner} won ${margin}!`;
+            } else {
+                let winner = state.battingFirst === state.team1 ? state.team1 : state.team2;
+                let margin = `by ${state.target - state.totalRuns - 1} runs`;
+                status =`${winner} won ${margin}!`;
+            }
+            document.getElementById('matchResult').textContent = status;
+            document.getElementById('matchResult').style.display = 'block';
+          }
+        }
         
         const balls = (state.currentOver * 6) + state.currentBall;
         const rr = balls ? (state.totalRuns / balls * 6).toFixed(2) : '0.00';

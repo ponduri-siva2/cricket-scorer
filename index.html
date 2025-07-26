@@ -559,11 +559,11 @@
                     } else if (totalRuns >= target) {
                         let winner = currentTeam;
                         let margin = `by ${totalWickets - currentWickets} wickets`;
-                        status = `${winner} wins ${margin}!`;
+                        status = `${winner} won ${margin}!`;
                     } else {
                         let winner = battingFirst === team1 ? team1 : team2;
                         let margin = `by ${target - totalRuns - 1} runs`;
-                        status =`${winner} wins ${margin}!`;
+                        status =`${winner} won ${margin}!`;
                     }
                     matchStatus = 'Completed'
                     statusClass = 'completed'
