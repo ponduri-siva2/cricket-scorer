@@ -113,7 +113,15 @@
     .score {
       font-size: 2.5em;
       font-weight: bold;
-      margin: 15px 0;
+      margin: 15px 0 0px 0;
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .score1 {
+      font-size: 0.8em;
+      font-weight: bold;
+      margin: 2px 0 10px 0;
       color: #2c3e50;
       text-align: center;
     }
@@ -251,11 +259,6 @@
         animation: scroll-left 25s linear infinite;
       }
 
-      .score {
-        font-size: 2.2em;
-        margin: 12px 0;
-      }
-
       .stats-grid {
         gap: 8px;
         margin-bottom: 15px;
@@ -303,6 +306,7 @@
       </div>
 
       <p class="score" id="scoreDisplay">Score: -</p>
+      <p class="score1" id="extrasScoreDisplay">Extras: -</p>
       
       <div class="stats-grid">
         <div class="stat-item">
@@ -470,6 +474,7 @@
         document.getElementById('scoreDisplay').textContent = `${state.totalRuns}/${state.currentWickets}`;
         document.getElementById('teamName').textContent = state.currentTeam;
         document.getElementById('overs').textContent = `${state.currentOver}.${state.currentBall}`;
+        document.getElementById('extrasScoreDisplay').textContent = `Extras: ${state.extraRuns}`;
         
         const balls = (state.currentOver * 6) + state.currentBall;
         const rr = balls ? (state.totalRuns / balls * 6).toFixed(2) : '0.00';

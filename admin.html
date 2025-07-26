@@ -311,7 +311,7 @@
         }
 
         .extras-btn-wd {
-            background: #95a5a6; /* Changed for better contrast */
+            background: #795548;
             color: white;
         }
 
@@ -729,10 +729,10 @@
                     </div>
                 </div>
                 
-                <div class="setting-item" style="margin: 20px 0;">
+                <!-- <div class="setting-item" style="margin: 20px 0;">
                     <span>Resume from middle of match</span>
                     <div class="toggle" id="resumeToggle" onclick="toggleResume()"></div>
-                </div>
+                </div> -->
                 
                 <div id="resumeForm" style="display: none;">
                     <h3 style="margin-bottom: 15px; color: #2c3e50;">Current Match State</h3>
@@ -780,6 +780,7 @@
                     <div class="over-info">
                         <div>Overs: <span id="oversDisplay">0.0</span></div>
                         <div>Run Rate: <span id="runRate">0.00</span></div>
+                        <div>Extras: <span id="extrasDisplay">0</span></div>
                     </div>
                 </div>
                 <div class="score-display">
@@ -808,8 +809,8 @@
                 <button class="score-btn runs-btn" onclick="addRuns(4)">4</button>
                 <button class="score-btn runs-btn" onclick="addRuns(6)">6</button>
                 <button class="score-btn action-btn" onclick="addWicket()">WICKET</button>
-                <button class="score-btn action-btn" onclick="addRunOut(1)">RUN OUT +1</button>
-                <button class="score-btn action-btn" onclick="addRunOut(2)">RUN OUT +2</button>
+                <button class="score-btn action-btn" onclick="addRunOut(1)">RO +1</button>
+                <button class="score-btn action-btn" onclick="addRunOut(2)">RO +2</button>
                 <button class="score-btn extras-btn-wd" onclick="addWide()">WIDE</button>
                 <button class="score-btn extras-btn-nb" onclick="promptNoBallRuns()">NO BALL</button>
                 <button class="score-btn undo-btn" onclick="undoLast()">UNDO LAST</button>
@@ -873,6 +874,8 @@
             tossWinner: '',
             tossDecision: '',
             innings1Score: '',
+            innings1Extras: 0,
+            extraRuns: 0,
             dateTime: new Date().toString().split('GMT')[0]
         };
 
@@ -949,40 +952,40 @@
         }
 
         // Toggle resume form
-        function toggleResume() {
-            let toggle = document.getElementById('resumeToggle');
-            let form = document.getElementById('resumeForm');
-            let targetForm = document.getElementById('targetForm');
-            let inningsSelect = document.getElementById('currentInnings');
+        // function toggleResume() {
+        //     let toggle = document.getElementById('resumeToggle');
+        //     let form = document.getElementById('resumeForm');
+        //     let targetForm = document.getElementById('targetForm');
+        //     let inningsSelect = document.getElementById('currentInnings');
             
-            toggle.classList.toggle('active');
-            form.style.display = toggle.classList.contains('active') ? 'block' : 'none';
+        //     toggle.classList.toggle('active');
+        //     form.style.display = toggle.classList.contains('active') ? 'block' : 'none';
             
-            // Show target form if 2nd innings is selected and resume is active
-            if (toggle.classList.contains('active') && inningsSelect.value === '2') {
-                targetForm.style.display = 'block';
-            } else {
-                targetForm.style.display = 'none';
-            }
-        }
+        //     // Show target form if 2nd innings is selected and resume is active
+        //     if (toggle.classList.contains('active') && inningsSelect.value === '2') {
+        //         targetForm.style.display = 'block';
+        //     } else {
+        //         targetForm.style.display = 'none';
+        //     }
+        // }
 
         // Handle innings change in resume form
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('currentInnings').addEventListener('change', function() {
-                let targetForm = document.getElementById('targetForm');
-                // Only show target form if resume toggle is active AND 2nd innings is selected
-                let resumeToggle = document.getElementById('resumeToggle');
-                if (resumeToggle.classList.contains('active') && this.value === '2') {
-                    targetForm.style.display = 'block';
-                } else {
-                    targetForm.style.display = 'none';
-                }
-            });
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     document.getElementById('currentInnings').addEventListener('change', function() {
+        //         let targetForm = document.getElementById('targetForm');
+        //         // Only show target form if resume toggle is active AND 2nd innings is selected
+        //         let resumeToggle = document.getElementById('resumeToggle');
+        //         if (resumeToggle.classList.contains('active') && this.value === '2') {
+        //             targetForm.style.display = 'block';
+        //         } else {
+        //             targetForm.style.display = 'none';
+        //         }
+        //     });
             
-            // Update toss winner names
-            document.getElementById('team1').addEventListener('input', updateTossOptions);
-            document.getElementById('team2').addEventListener('input', updateTossOptions);
-        });
+        //     // Update toss winner names
+        //     document.getElementById('team1').addEventListener('input', updateTossOptions);
+        //     document.getElementById('team2').addEventListener('input', updateTossOptions);
+        // });
 
         function updateTossOptions() {
             let team1Name = document.getElementById('team1').value || 'Team A';
@@ -1026,22 +1029,22 @@
             gameState.tossDecision = tossDecision;
             
             // Check if resuming from middle
-            let resumeToggle = document.getElementById('resumeToggle');
-            if (resumeToggle.classList.contains('active')) {
-                gameState.isResumed = true;
-                gameState.innings = parseInt(document.getElementById('currentInnings').value);
-                gameState.totalRuns = parseInt(document.getElementById('currentRuns').value) || 0;
-                gameState.currentWickets = parseInt(document.getElementById('currentWickets').value) || 0;
+            // let resumeToggle = document.getElementById('resumeToggle');
+            // if (resumeToggle.classList.contains('active')) {
+            //     gameState.isResumed = true;
+            //     gameState.innings = parseInt(document.getElementById('currentInnings').value);
+            //     gameState.totalRuns = parseInt(document.getElementById('currentRuns').value) || 0;
+            //     gameState.currentWickets = parseInt(document.getElementById('currentWickets').value) || 0;
                 
-                let completedOvers = parseFloat(document.getElementById('currentOversCompleted').value) || 0;
-                gameState.currentOver = Math.floor(completedOvers);
-                gameState.currentBall = Math.round((completedOvers - gameState.currentOver) * 6);
+            //     let completedOvers = parseFloat(document.getElementById('currentOversCompleted').value) || 0;
+            //     gameState.currentOver = Math.floor(completedOvers);
+            //     gameState.currentBall = Math.round((completedOvers - gameState.currentOver) * 6);
                 
-                if (gameState.innings === 2) {
-                    gameState.target = parseInt(document.getElementById('targetScore').value) || 1;
-                    gameState.currentTeam = gameState.battingFirst === gameState.team1 ? gameState.team2 : gameState.team1;
-                }
-            } else {
+            //     if (gameState.innings === 2) {
+            //         gameState.target = parseInt(document.getElementById('targetScore').value) || 1;
+            //         gameState.currentTeam = gameState.battingFirst === gameState.team1 ? gameState.team2 : gameState.team1;
+            //     }
+            // } else {
                 // Fresh match
                 gameState.innings = 1;
                 gameState.currentOver = 0;
@@ -1051,7 +1054,7 @@
                 gameState.target = null;
                 gameState.currentOverBalls = [];
                 gameState.overHistory = [];
-            }
+            // }
             
             updateDisplay();
             showScreen('settings', document.querySelector('[onclick="showScreen(\'settings\', this)"]'))
@@ -1107,11 +1110,10 @@
         function addWide() {
             let extraRuns = settings.wideRun ? 1 : 0;
             
-            gameState.totalRuns += extraRuns; // Wide is always 1 run + optional extra
+            gameState.totalRuns += extraRuns;
+            gameState.extraRuns += extraRuns;
             
-            let displayValue = `Wd+${extraRuns}`;
-            
-            let ballData = { type: 'wide', value: displayValue };
+            let ballData = { type: 'wide', value: 'Wd' };
             gameState.currentOverBalls.push(ballData);
             gameState.lastAction = { type: 'wide', runs: extraRuns, ballAdded: false }; // Wide does not count as a ball
             updateDisplay();
@@ -1167,9 +1169,10 @@
             let totalNoBallRuns = baseNoBallRun + runs;
 
             gameState.totalRuns += totalNoBallRuns;
+            gameState.extraRuns += baseNoBallRun;
 
             let displayValue = `Nb+${runs}`; // Display runs scored off the bat for clarity
-            if (runs === 0) displayValue = 'Nb+0';
+            if (runs === 0) displayValue = 'Nb';
             
             let ballData = { type: 'noball', value: displayValue };
 
@@ -1269,6 +1272,8 @@
                 gameState.currentOver = 0;
                 gameState.currentBall = 0;
                 gameState.currentOverBalls = [];
+                gameState.innings1Extras = gameState.extraRuns;
+                gameState.extraRuns = 0;
                 alert(`${gameState.battingFirst} scored ${gameState.target - 1}. ${gameState.currentTeam} needs ${gameState.target} to win!`);
                 updateDisplay();
                 backgroundSyncMatch(); // Publish after 1st innings
@@ -1311,9 +1316,13 @@
                 if (action.ballAdded) gameState.currentBall--;
             } else if (action.type === 'wide') {
                 gameState.totalRuns -= action.runs;
+                let extraRuns = settings.wideRun ? 1 : 0;
+                gameState.extraRuns -= extraRuns;
                 // No change to currentBall for wide
             } else if (action.type === 'noball') {
                 gameState.totalRuns -= action.runs;
+                let extraRuns = settings.noBallRun ? 1 : 0;
+                gameState.extraRuns -= extraRuns;
                 // No change to currentBall for noball
             } else if (action.type === 'wicket') {
                 gameState.currentWickets--;
@@ -1350,6 +1359,9 @@
             
             let runRate = totalBallsFaced > 0 ? (gameState.totalRuns / totalBallsFaced * 6).toFixed(2) : '0.00';
             document.getElementById('runRate').textContent = runRate;
+
+            document.getElementById('extrasDisplay').textContent = gameState.extraRuns;
+    
             
             // Show/hide target info based on innings
             if (gameState.innings === 1) {
