@@ -1171,8 +1171,8 @@
             gameState.totalRuns += totalNoBallRuns;
             gameState.extraRuns += baseNoBallRun;
 
-            let displayValue = `Nb+${runs}`; // Display runs scored off the bat for clarity
-            if (runs === 0) displayValue = 'Nb';
+            let displayValue = `Nb+${runs}`;
+            // if (runs === 0) displayValue = 'Nb+0';
             
             let ballData = { type: 'noball', value: displayValue };
 
@@ -1235,10 +1235,10 @@
                         return sum + ball.value;
                     } else if (ball.type === 'wide') {
                         // Wide already includes the extra run, so just add its value
-                        return sum + parseInt(ball.value.match(/\+(\d+)/)[1]);
+                        return sum + (settings.wideRun ? 1 : 0);
                     } else if (ball.type === 'noball') {
                         // No-ball already includes the base run and bat runs, so just add its value
-                        return sum + parseInt(ball.value.match(/\+(\d+)/)[1]) + 1; // +1 for the no-ball itself
+                        return sum + (ball.value.match(/\+(\d+)/)[1]) + 1;
                     } else if (ball.type === 'wicket' && ball.value.startsWith('RO')) {
                          return sum + parseInt(ball.value.match(/\+(\d+)/)[1]);
                     }
