@@ -1232,13 +1232,13 @@
                 balls: [...gameState.currentOverBalls],
                 runs: gameState.currentOverBalls.reduce((sum, ball) => {
                     if (ball.type === 'runs') {
-                        return sum + ball.value;
+                        return sum + parseInt(ball.value);
                     } else if (ball.type === 'wide') {
                         // Wide already includes the extra run, so just add its value
-                        return sum + (settings.wideRun ? 1 : 0);
+                        return sum + parseInt(settings.wideRun ? 1 : 0);
                     } else if (ball.type === 'noball') {
                         // No-ball already includes the base run and bat runs, so just add its value
-                        return sum + (ball.value.match(/\+(\d+)/)[1]) + 1;
+                        return sum + parseInt(ball.value.match(/\+(\d+)/)[1]) + 1;
                     } else if (ball.type === 'wicket' && ball.value.startsWith('RO')) {
                          return sum + parseInt(ball.value.match(/\+(\d+)/)[1]);
                     }
