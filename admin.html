@@ -1294,11 +1294,11 @@
                     } else if (gameState.totalRuns >= gameState.target) {
                         let winner = gameState.currentTeam;
                         let margin = `by ${gameState.totalWickets - gameState.currentWickets} wickets`;
-                        showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                        showCelebration(`Match Over! ${winner} won ${margin}!`);
                     } else {
                         let winner = gameState.battingFirst === gameState.team1 ? gameState.team1 : gameState.team2;
                         let margin = `by ${gameState.target - gameState.totalRuns - 1} runs`;
-                        showCelebration(`Match Over! ${winner} wins ${margin}!`);
+                        showCelebration(`Match Over! ${winner} won ${margin}!`);
                     }
                 }, 500); // 500ms delay to allow publish to complete
             }
@@ -1467,6 +1467,9 @@
         }
 
         function showCelebration(message) {
+            localStorage.removeItem('cricketGameState');
+            localStorage.removeItem('cricketSettings');
+            localStorage.removeItem('publishedMatchId');
             document.body.classList.add('celebration-mode'); // Add class to body for celebration styles
             document.body.innerHTML = `
             <div class="confetti">🎉🎉🎉</div>
@@ -1474,6 +1477,7 @@
             <p>${message}</p>
             <div class="confetti">${message !== 'Match Draw!' ? '✨🎈🍾' : ''}</div>
             <button class="btn" style="background: #3498db; margin-top: 30px;" onclick="clearStorage()">New Match</button>
+            <button class="btn" style="background: #3498db; margin-top: 30px;" onclick="navigateHome()">HOME</button>
             `;
         }
 
@@ -1534,6 +1538,13 @@
                 alert('Game ended and data cleared.');
                 location.reload(); // reload the page to reset
             }
+        }
+
+        function navigateHome() {
+            localStorage.removeItem('cricketGameState');
+            localStorage.removeItem('cricketSettings');
+            localStorage.removeItem('publishedMatchId');
+            window.location.href = `https://ponduri-siva2.github.io/cricket-scorer/`
         }
 
         // Initialize
