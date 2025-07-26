@@ -1172,7 +1172,7 @@
             gameState.extraRuns += baseNoBallRun;
 
             let displayValue = `Nb+${runs}`;
-            // if (runs === 0) displayValue = 'Nb+0';
+            if (runs === 0) displayValue = 'Nb+0';
             
             let ballData = { type: 'noball', value: displayValue };
 
