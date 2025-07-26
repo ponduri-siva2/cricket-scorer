@@ -487,7 +487,11 @@
         document.getElementById('extrasScoreDisplay').textContent = `Extras: ${state.extraRuns}`;
 
         if(state.innings === 2 && state.target) {
-          if(!(state.required > 0 && state.ballsLeft > 0)) {
+          const required = state.target - state.totalRuns;
+          const ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
+          if(required > 0 && ballsLeft > 0) {
+            document.getElementById('matchResult').style.display = 'none';
+          } else {
             let status = ''
             if (state.totalRuns == state.target - 1 && (state.currentOver == state.totalOvers || state.currentWickets >= state.maxWickets)){
                 status = `Match Draw!`;
@@ -502,7 +506,9 @@
             }
             document.getElementById('matchResult').textContent = status;
             document.getElementById('matchResult').style.display = 'block';
-          }
+          } 
+        } else {
+          document.getElementById('matchResult').style.display = 'none';
         }
         
         const balls = (state.currentOver * 6) + state.currentBall;
