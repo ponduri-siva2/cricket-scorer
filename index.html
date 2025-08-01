@@ -185,10 +185,11 @@
         .match-status {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
-            padding: 0.3rem 0.8rem;
+            padding: 0.2rem 0.6rem;
             border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            font-size: 0.6rem;
+            font-weight: 500;
+            font-size: bold;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -196,6 +197,10 @@
 
         .match-status.completed {
             background: linear-gradient(45deg, #BDBDBD, #9E9E9E);
+        }
+
+        .match-status.abandoned {
+            background: linear-gradient(45deg, #edd0d0, #897575);
         }
 
         .vs-indicator {
@@ -282,6 +287,11 @@
 
         .match-details {
             font-size: 0.85rem;
+            opacity: 1;
+        }
+
+        .match-details-date {
+            font-size: 0.6rem;
             opacity: 0.8;
         }
 
@@ -541,6 +551,16 @@
             if (!isLive) {
                 matchStatus = 'Completed';
                 statusClass = 'completed';
+            } else {
+                const inputDate = new Date(dateTime);
+                const now = new Date();
+                // Calculate the difference in milliseconds
+                const diff = now - inputDate;
+                // Check if the difference is more than one day (in milliseconds)
+                if(diff > 24 * 60 * 60 * 1000) {
+                    matchStatus = 'Abandoned';
+                    statusClass = 'abandoned';
+                };
             }
 
             // Target information
@@ -622,7 +642,7 @@
                         <div class="match-details">
                             ${totalOvers} overs • ${isSecondInnings ? 'Innings 2' : 'Innings 1'}
                         </div>
-                        <div class="match-details">
+                        <div class="match-details-date">
                             ${dateTime || ''}
                         </div>
                     </div>
