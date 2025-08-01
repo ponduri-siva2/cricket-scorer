@@ -93,7 +93,7 @@
     .ticker-content {
       position: absolute;
       white-space: nowrap;
-      animation: scroll-left 30s linear infinite;
+      animation: scroll-left 20s linear infinite;
       font-size: 0.9em;
       line-height: 30px;
       padding-left: 100%;
@@ -103,7 +103,7 @@
 
     @keyframes scroll-left {
       0% {
-        transform: translate3d(100%, 0, 0);
+        transform: translate3d(50%, 0, 0);
       }
       100% {
         transform: translate3d(-100%, 0, 0);
@@ -490,7 +490,6 @@
         if (state.innings === 2 && state.target) {
             const firstInningsTeam = state.team1 === state.currentTeam ? state.team2 : state.team1;
             tickerParts.push(`${firstInningsTeam} scored ${state.innings1Score} `);
-            tickerParts.push(`${state.currentTeam} needs ${state.target} runs to win`);
         }
         // Default message if no specific info available
         if (tickerParts.length === 0) {
