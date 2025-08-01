@@ -305,6 +305,18 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
+        .btn:disabled {
+            background: #bdc3c7 !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn:disabled:hover {
+            background: #bdc3c7 !important;
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
         .runs-btn {
             background: #3498db;
             color: white;
@@ -707,12 +719,12 @@
                 
                 <div class="form-group">
                     <label for="team1">Team 1 Name:</label>
-                    <input type="text" id="team1" value="Team A">
+                    <input type="text" id="team1" value="">
                 </div>
                 
                 <div class="form-group">
                     <label for="team2">Team 2 Name:</label>
-                    <input type="text" id="team2" value="Team B">
+                    <input type="text" id="team2" value="">
                 </div>
                 
                 <div class="form-group">
@@ -861,10 +873,10 @@
             currentBall: 0,
             totalRuns: 0,
             currentWickets: 0,
-            team1: 'Team A',
-            team2: 'Team B',
-            currentTeam: 'Team A',
-            battingFirst: 'Team A',
+            team1: '',
+            team2: '',
+            currentTeam: '',
+            battingFirst: '',
             innings: 1,
             target: null,
             currentOverBalls: [],
@@ -1007,11 +1019,15 @@
 
         // Start match
         function startMatch() {
+            if (!validateTeamNames()) {
+                alert('Both team names must be more than 3 characters long.');
+                return;
+            }
             // Basic setup
             gameState.totalOvers = parseInt(document.getElementById('overs').value);
             gameState.totalWickets = parseInt(document.getElementById('totalWickets').value);
-            gameState.team1 = document.getElementById('team1').value || 'Team A';
-            gameState.team2 = document.getElementById('team2').value || 'Team B';
+            gameState.team1 = document.getElementById('team1').value || '';
+            gameState.team2 = document.getElementById('team2').value || '';
             
             // Determine batting order based on toss
             let tossWinner = document.getElementById('tossWinner').value;
@@ -1122,6 +1138,20 @@
             }
             backgroundSyncMatch();
             autoSaveCheck();
+        }
+
+        function validateTeamNames() {
+            const team1Name = document.getElementById('team1').value.trim();
+            const team2Name = document.getElementById('team2').value.trim();
+            const gameOnButton = document.querySelector('.btn.btn-success');
+            
+            // Check if both team names have more than 3 characters
+            const isValid = team1Name.length >= 3 && team2Name.length >= 3;
+            
+            // Enable/disable the Game On button
+            gameOnButton.disabled = !isValid;
+            
+            return isValid;
         }
 
         function promptNoBallRuns() {
@@ -1558,8 +1588,17 @@
             });
 
             // Update toss winner names
-            document.getElementById('team1').addEventListener('input', updateTossOptions);
-            document.getElementById('team2').addEventListener('input', updateTossOptions);
+            document.getElementById('team1').addEventListener('input', function() {
+                validateTeamNames();
+                updateTossOptions();
+            });
+            
+            document.getElementById('team2').addEventListener('input', function() {
+                validateTeamNames();
+                updateTossOptions();
+            });
+
+            validateTeamNames();
 
             // Initial call to update toss options
             updateTossOptions();
