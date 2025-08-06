@@ -533,7 +533,8 @@
                 maxWickets,
                 tossWinner,
                 tossDecision,
-                dateTime
+                dateTime,
+                settings
             } = matchData;
 
             // Calculate scores for both teams
@@ -570,7 +571,8 @@
                 const ballsLeft = (totalOvers - currentOver) * 6 - currentBall;
                 const oversLeft = Math.floor(ballsLeft / 6);
                 const ballsInOver = ballsLeft % 6;
-                if (required > 0 && ballsLeft > 0) {
+                const isAllOut = currentWickets === (totalWickets - (settings?.lastPlayerCanBat ? 0 : 1));
+                if (required > 0 && ballsLeft > 0 && !isAllOut) {
                     targetInfo = `<div class="target-info">Need ${required} in ${oversLeft}.${ballsInOver} overs</div>`;
                 } else {
                     let status = ''

@@ -523,7 +523,8 @@
         if(state.innings === 2 && state.target) {
           const required = state.target - state.totalRuns;
           const ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
-          if(required > 0 && ballsLeft > 0) {
+          const isAllOut = state.currentWickets === (state.totalWickets - (state?.settings?.lastPlayerCanBat ? 0 : 1));
+          if(required > 0 && ballsLeft > 0 && !isAllOut) {
             document.getElementById('matchResult').style.display = 'none';
           } else {
             let status = ''
