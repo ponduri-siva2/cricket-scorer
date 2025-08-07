@@ -565,8 +565,8 @@
             let remaining = state.target - state.totalRuns;
             let ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
             let requiredRR = ballsLeft > 0 ? (remaining / ballsLeft * 6).toFixed(2) : '0.00';
-            
-            if (remaining > 0 && ballsLeft > 0) {
+            const isAllOut = state.currentWickets === (state.totalWickets - (state?.settings?.lastPlayerCanBat ? 0 : 1));
+            if (remaining > 0 && ballsLeft > 0 && !isAllOut) {
                 const runsRequiredText = `${remaining} Runs required from ${ballsLeft} Balls`;
                 document.getElementById('runsRequiredInfo').style.display = 'block';
                 document.getElementById('runsRequiredInfo').textContent = runsRequiredText;
