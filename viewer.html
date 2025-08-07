@@ -42,6 +42,17 @@
       flex-wrap: wrap;
     }
 
+    .error-message {
+      background: #e74c3c;
+      color: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      text-align: center;
+      font-weight: bold;
+      display: none;
+    }
+
     input {
       padding: 8px;
       width: 180px;
@@ -332,6 +343,10 @@
       <button onclick="loadMatch()">Go</button>
     </div>
 
+    <div id="errorMessage" class="error-message">
+      Match not found!
+    </div>
+    
     <div id="scoreSection" style="display: none;">
       <!-- Teams Header -->
       <div class="teams-header" id="teamsHeader" style="display: none;">
@@ -441,21 +456,37 @@
     }
 
     function fetchMatchData() {
-        if (!currentMatchId) return;
+      if (!currentMatchId) return;
 
-        fetch(`${API_URL}/${currentMatchId}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data && data.data) {
-                    const gameState = JSON.parse(data.data);
-                    displayMatch(gameState);
-                } else {
-                    console.log("Match not found or no data");
-                }
-            })
-            .catch(err => {
-                console.error("Failed to fetch match data:", err);
-            });
+      // Hide any previous error messages
+      document.getElementById('errorMessage').style.display = 'none';
+
+      fetch(`${API_URL}/${currentMatchId}`)
+          .then(res => {
+              if (!res.ok) {
+                  throw new Error(`HTTP error! status: ${res.status}`);
+              }
+              return res.json();
+          })
+          .then(data => {
+              if (data && data.data) {
+                  const gameState = JSON.parse(data.data);
+                  displayMatch(gameState);
+                  // Hide error message if match loads successfully
+                  document.getElementById('errorMessage').style.display = 'none';
+              } else {
+                  // Show error message when no data is found
+                  document.getElementById('scoreSection').style.display = 'none';
+                  document.getElementById('errorMessage').style.display = 'block';
+                  console.log("Match not found or no data");
+              }
+          })
+          .catch(err => {
+              // Show error message on fetch failure
+              document.getElementById('scoreSection').style.display = 'none';
+              document.getElementById('errorMessage').style.display = 'block';
+              console.error("Failed to fetch match data:", err);
+          });
     }
 
     function startAutoRefresh() {
