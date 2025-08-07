@@ -91,7 +91,6 @@
 
     /* Scrolling ticker */
     .ticker-container {
-      /* background: #34495e; */
       color: white;
       padding: 8px 0;
       margin-bottom: 15px;
@@ -140,7 +139,6 @@
 
     .score1 {
       font-size: 0.8em;
-      /* font-weight: bold; */
       margin: 2px 0 10px 0;
       color: #2c3e50;
       text-align: center;
@@ -170,6 +168,151 @@
       font-weight: bold;
       font-size: 1.1em;
       color: #2c3e50;
+    }
+
+    /* Tab styles */
+    .tab-container {
+      margin-top: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 2px solid #ecf0f1;
+      margin-bottom: 15px;
+    }
+
+    .tab-button {
+      flex: 1;
+      padding: 12px;
+      background: #f8f9fa;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      color: #666;
+      border-radius: 6px 6px 0 0;
+      margin-right: 2px;
+      transition: all 0.3s ease;
+    }
+
+    .tab-button:last-child {
+      margin-right: 0;
+    }
+
+    .tab-button.active {
+      background: #3498db;
+      color: white;
+    }
+
+    .tab-button:hover:not(.active) {
+      background: #e9ecef;
+      color: #495057;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Player scorecard styles */
+    .scorecard-section {
+      margin-bottom: 20px;
+    }
+
+    .scorecard-section h3 {
+      font-size: 1.1em;
+      margin-bottom: 10px;
+      color: #2c3e50;
+      padding: 8px;
+      background: linear-gradient(135deg, #3498db, #27ae60);
+      color: white;
+      border-radius: 6px;
+    }
+
+    .innings-tabs {
+      display: flex;
+      margin-bottom: 10px;
+    }
+
+    .innings-tab {
+      flex: 1;
+      padding: 8px;
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: bold;
+      text-align: center;
+      color: #666;
+    }
+
+    .innings-tab:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+
+    .innings-tab:last-child {
+      border-radius: 0 4px 4px 0;
+      border-left: none;
+    }
+
+    .innings-tab.active {
+      background: #3498db;
+      color: white;
+      border-color: #3498db;
+    }
+
+    .player-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85em;
+    }
+
+    .player-table th,
+    .player-table td {
+      padding: 6px 4px;
+      text-align: left;
+      border-bottom: 1px solid #ecf0f1;
+    }
+
+    .player-table th {
+      background: #f8f9fa;
+      font-weight: bold;
+      color: #2c3e50;
+      font-size: 0.8em;
+    }
+
+    .player-table td {
+      color: #333;
+    }
+
+    .player-table .player-name {
+      font-weight: bold;
+      max-width: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .player-table .runs {
+      font-weight: bold;
+      color: #27ae60;
+    }
+
+    .player-table .sr {
+      color: #666;
+    }
+
+    .player-table .not-out {
+      color: #27ae60;
+      font-style: italic;
+    }
+
+    .player-table .out {
+      color: #e74c3c;
+      font-style: italic;
     }
 
     .over-history {
@@ -244,31 +387,28 @@
     }
 
     .home-button {
-            position: absolute;
-            background-color: #fff;
-            border: none;
-            border-radius: 8px;
-            /* padding: 12px 16px; */
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #000;
-            font-size: 16px;
-        }
+      position: absolute;
+      background-color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #000;
+      font-size: 16px;
+    }
         
-        .home-icon {
-            width: 25px;
-            height: 25px;
-            fill: currentColor;
-        }
+    .home-icon {
+      width: 25px;
+      height: 25px;
+      fill: currentColor;
+    }
         
-        /* Icon-only button variant */
-        .icon-only {
-            /* padding: 12px; */
-            border-radius: 50%;
-        }
+    .icon-only {
+      border-radius: 50%;
+    }
 
     /* Mobile optimizations */
     @media (max-width: 480px) {
@@ -327,17 +467,31 @@
       .over-item p {
         font-size: 0.8em;
       }
+
+      .player-table {
+        font-size: 0.75em;
+      }
+
+      .player-table th,
+      .player-table td {
+        padding: 4px 2px;
+      }
+
+      .tab-button {
+        padding: 8px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <i class="fa-solid fa-house"></i>
     <button class="home-button icon-only" onclick="goHome()" title="Go Home">
       <svg class="home-icon" viewBox="0 0 24 24">
           <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
       </svg>
-  </button>
+    </button>
+    
     <div id="inputSection">
       <input type="text" id="matchIdInput" placeholder="Enter Match ID" />
       <button onclick="loadMatch()">Go</button>
@@ -398,9 +552,30 @@
         </div>
       </div>
 
-      <div class="over-history" id="historyContainer">
-        <h3>Over History</h3>
-        <div id="overList"></div>
+      <!-- Tab Container -->
+      <div class="tab-container">
+        <div class="tabs">
+          <button class="tab-button active" onclick="switchTab('overs')">Over History</button>
+          <button class="tab-button" onclick="switchTab('scorecard')">Player Scorecard</button>
+        </div>
+
+        <!-- Over History Tab -->
+        <div id="overs-tab" class="tab-content active">
+          <div class="over-history">
+            <div id="overList"></div>
+          </div>
+        </div>
+
+        <!-- Player Scorecard Tab -->
+        <div id="scorecard-tab" class="tab-content">
+          <div class="scorecard-section">
+            <div class="innings-tabs" id="inningsTabContainer" style="display: none;">
+              <div class="innings-tab active" onclick="switchInnings(1)">1st Innings</div>
+              <div class="innings-tab" onclick="switchInnings(2)">2nd Innings</div>
+            </div>
+            <div id="scorecardContent"></div>
+          </div>
+        </div>
       </div>
     </div>
     
@@ -413,6 +588,8 @@
     const API_URL = 'https://6865207d5b5d8d03397fd0a4.mockapi.io/api/v1/match';
     let currentMatchId = null;
     let refreshInterval = null;
+    let currentMatchData = null;
+    let activeInnings = 1;
 
     function goHome() {
       window.location.href = `https://ponduri-siva2.github.io/cricket-scorer/`;
@@ -471,6 +648,7 @@
           .then(data => {
               if (data && data.data) {
                   const gameState = JSON.parse(data.data);
+                  currentMatchData = gameState;
                   displayMatch(gameState);
                   // Hide error message if match loads successfully
                   document.getElementById('errorMessage').style.display = 'none';
@@ -499,6 +677,231 @@
         refreshInterval = setInterval(fetchMatchData, 10000);
         
         console.log("Auto-refresh started for match ID:", currentMatchId);
+    }
+
+    function switchTab(tab) {
+        // Remove active class from all tab buttons and contents
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        // Add active class to clicked button and corresponding content
+        event.target.classList.add('active');
+        document.getElementById(tab + '-tab').classList.add('active');
+        
+        // If switching to scorecard tab, update the display
+        if (tab === 'scorecard' && currentMatchData) {
+            displayPlayerScorecard(currentMatchData);
+        }
+    }
+
+    function switchInnings(innings) {
+        activeInnings = innings;
+        document.querySelectorAll('.innings-tab').forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (currentMatchData) {
+            displayPlayerScorecard(currentMatchData);
+        }
+    }
+
+    function calculatePlayerStats(state) {
+        const players = {
+            1: {}, // First innings players
+            2: {}  // Second innings players
+        };
+
+        // Initialize batting order tracking
+        let currentBatsmen = {
+            1: { striker: 'Player1', nonStriker: 'Player2', nextPlayer: 3 },
+            2: { striker: 'Player1', nonStriker: 'Player2', nextPlayer: 3 }
+        };
+
+        if (!state.overHistory) return players;
+
+        // Process each over
+        state.overHistory.forEach(over => {
+            const innings = over.innings;
+            if (!players[innings]) players[innings] = {};
+
+            let currentStriker = currentBatsmen[innings].striker;
+            let currentNonStriker = currentBatsmen[innings].nonStriker;
+
+            // Initialize players if not exists
+            if (!players[innings][currentStriker]) {
+                players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+            }
+            if (!players[innings][currentNonStriker]) {
+                players[innings][currentNonStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+            }
+
+            // Process each ball in the over
+            over.balls.forEach(ball => {
+                if (ball.type === 'runs') {
+                    const runs = parseInt(ball.value);
+                    
+                    // Add runs and ball to striker
+                    players[innings][currentStriker].runs += runs;
+                    players[innings][currentStriker].balls += 1;
+
+                    // Count boundaries
+                    if (runs === 4) players[innings][currentStriker].fours += 1;
+                    if (runs === 6) players[innings][currentStriker].sixes += 1;
+
+                    // Swap batsmen if odd runs
+                    if (runs % 2 === 1) {
+                        [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                    }
+                } else if (ball.type === 'wicket') {
+                    // Handle different wicket types
+                    if (ball.value === 'W') {
+                        // Normal wicket - striker is out
+                        players[innings][currentStriker].balls += 1;
+                        players[innings][currentStriker].isOut = true;
+                        players[innings][currentStriker].dismissal = 'Out';
+                        
+                        // New player comes in
+                        currentStriker = `Player${currentBatsmen[innings].nextPlayer}`;
+                        currentBatsmen[innings].nextPlayer += 1;
+                        
+                        if (!players[innings][currentStriker]) {
+                            players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                        }
+                    } else if (ball.value.includes('RO')) {
+                        // Run out - determine which end is out based on side info
+                        const runsScored = ball.value.includes('+') ? parseInt(ball.value.split('+')[1]) : 0;
+                        
+                        // Add runs to striker
+                        players[innings][currentStriker].runs += runsScored;
+                        players[innings][currentStriker].balls += 1;
+
+                        // Determine who is out based on 'side' property
+                        let outPlayer;
+                        if (ball.side === 'BE') {
+                            // Bowling end - non-striker is out
+                            outPlayer = currentNonStriker;
+                        } else {
+                            // Keeping end or default - striker is out
+                            outPlayer = currentStriker;
+                        }
+
+                        players[innings][outPlayer].isOut = true;
+                        players[innings][outPlayer].dismissal = 'Run Out';
+
+                        // Replace the out player
+                        const newPlayer = `Player${currentBatsmen[innings].nextPlayer}`;
+                        currentBatsmen[innings].nextPlayer += 1;
+
+                        if (!players[innings][newPlayer]) {
+                            players[innings][newPlayer] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                        }
+
+                        if (outPlayer === currentStriker) {
+                            currentStriker = newPlayer;
+                        } else {
+                            currentNonStriker = newPlayer;
+                        }
+
+                        // Swap if odd runs
+                        if (runsScored % 2 === 1) {
+                            [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                        }
+                    }
+                } else if (ball.type === 'wide' || ball.type === 'noball') {
+                    // Wide/No-ball doesn't add to striker's ball count but may add runs
+                    if (ball.value.includes('+')) {
+                        const runs = parseInt(ball.value.split('+')[1]);
+                        players[innings][currentStriker].runs += runs;
+                        
+                        if (runs % 2 === 1) {
+                            [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                        }
+                    }
+                }
+            });
+
+            // Swap batsmen at end of over
+            [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+
+            // Update current batsmen for this innings
+            currentBatsmen[innings].striker = currentStriker;
+            currentBatsmen[innings].nonStriker = currentNonStriker;
+        });
+
+        return players;
+    }
+
+    function displayPlayerScorecard(state) {
+        const players = calculatePlayerStats(state);
+        const scorecardContent = document.getElementById('scorecardContent');
+        const inningsTabContainer = document.getElementById('inningsTabContainer');
+
+        // Show innings tabs if both innings exist
+        if (players[1] && Object.keys(players[1]).length > 0 && 
+            players[2] && Object.keys(players[2]).length > 0) {
+            inningsTabContainer.style.display = 'flex';
+        } else {
+            inningsTabContainer.style.display = 'none';
+            activeInnings = Object.keys(players[1] || {}).length > 0 ? 1 : 2;
+        }
+
+        const currentPlayers = players[activeInnings] || {};
+        const teamName = activeInnings === 1 ? state.battingFirst : 
+                        (state.battingFirst === state.team1 ? state.team2 : state.team1);
+
+        if (Object.keys(currentPlayers).length === 0) {
+            scorecardContent.innerHTML = '<p class="no-content">No batting data available</p>';
+            return;
+        }
+
+        let html = `<h3>${teamName} - ${activeInnings === 1 ? '1st' : '2nd'} Innings</h3>`;
+        html += `
+            <table class="player-table">
+                <thead>
+                    <tr>
+                        <th>Batsman</th>
+                        <th>Runs</th>
+                        <th>Balls</th>
+                        <th>4s</th>
+                        <th>6s</th>
+                        <th>SR</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+
+        // Sort players by batting order
+        const sortedPlayers = Object.entries(currentPlayers).sort((a, b) => {
+            const numA = parseInt(a[0].replace('Player', ''));
+            const numB = parseInt(b[0].replace('Player', ''));
+            return numA - numB;
+        });
+
+        sortedPlayers.forEach(([playerName, stats]) => {
+            const sr = stats.balls > 0 ? ((stats.runs / stats.balls) * 100).toFixed(1) : '0.0';
+            const status = stats.isOut ? 
+                `<span class="out">${stats.dismissal}</span>` : 
+                `<span class="not-out">Not Out</span>`;
+
+            html += `
+                <tr>
+                    <td class="player-name">${playerName}</td>
+                    <td class="runs">${stats.runs}</td>
+                    <td>${stats.balls}</td>
+                    <td>${stats.fours}</td>
+                    <td>${stats.sixes}</td>
+                    <td class="sr">${sr}</td>
+                    <td>${status}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                </tbody>
+            </table>
+        `;
+
+        scorecardContent.innerHTML = html;
     }
 
     function generateTickerText(state) {
@@ -625,6 +1028,7 @@
             currentOverBallsContainer.innerHTML = '<span style="color: #666; font-size: 0.9em;">No balls bowled yet</span>';
         }
 
+        // Display over history
         const overList = document.getElementById('overList');
         overList.innerHTML = '';
 
@@ -652,6 +1056,12 @@
             });
         } else {
             overList.innerHTML = '<p class="no-content">No completed overs yet</p>';
+        }
+
+        // Update player scorecard if it's the active tab
+        const scorecardTab = document.getElementById('scorecard-tab');
+        if (scorecardTab.classList.contains('active')) {
+            displayPlayerScorecard(state);
         }
     }
 
