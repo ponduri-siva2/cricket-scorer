@@ -232,42 +232,11 @@
       border-radius: 6px;
     }
 
-    .innings-tabs {
-      display: flex;
-      margin-bottom: 10px;
-    }
-
-    .innings-tab {
-      flex: 1;
-      padding: 8px;
-      background: #f8f9fa;
-      border: 1px solid #dee2e6;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: bold;
-      text-align: center;
-      color: #666;
-    }
-
-    .innings-tab:first-child {
-      border-radius: 4px 0 0 4px;
-    }
-
-    .innings-tab:last-child {
-      border-radius: 0 4px 4px 0;
-      border-left: none;
-    }
-
-    .innings-tab.active {
-      background: #3498db;
-      color: white;
-      border-color: #3498db;
-    }
-
     .player-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85em;
+      margin-bottom: 20px;
     }
 
     .player-table th,
@@ -313,6 +282,16 @@
     .player-table .out {
       color: #e74c3c;
       font-style: italic;
+    }
+
+    .player-table .batting {
+      color: #f39c12;
+      font-weight: bold;
+    }
+
+    /* Current player highlighting */
+    .player-table tr.current-player {
+      background-color: #f0f0f0;
     }
 
     .over-history {
@@ -481,6 +460,11 @@
         padding: 8px;
         font-size: 12px;
       }
+
+      .ticker-content {
+        font-size: 0.8em;
+        animation: scroll-left 15s linear infinite; /* Changed from 25s to 15s */
+      }
     }
   </style>
 </head>
@@ -569,10 +553,6 @@
         <!-- Player Scorecard Tab -->
         <div id="scorecard-tab" class="tab-content active">
           <div class="scorecard-section">
-            <div class="innings-tabs" id="inningsTabContainer" style="display: none;">
-              <div class="innings-tab active" onclick="switchInnings(1)">1st Innings</div>
-              <div class="innings-tab" onclick="switchInnings(2)">2nd Innings</div>
-            </div>
             <div id="scorecardContent"></div>
           </div>
         </div>
@@ -589,7 +569,6 @@
     let currentMatchId = null;
     let refreshInterval = null;
     let currentMatchData = null;
-    let activeInnings = 1;
 
     function goHome() {
       window.location.href = `https://ponduri-siva2.github.io/cricket-scorer/`;
@@ -694,17 +673,23 @@
         }
     }
 
-    function switchInnings(innings) {
-        activeInnings = innings;
-        document.querySelectorAll('.innings-tab').forEach(tab => tab.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        if (currentMatchData) {
-            displayPlayerScorecard(currentMatchData);
+    function getCurrentBatsmen(state) {
+        // Get current batsmen based on game state
+        if (state.striker && state.nonStriker) {
+            return {
+                striker: state.striker,
+                nonStriker: state.nonStriker
+            };
         }
+        
+        // Default fallback if striker/nonStriker not available
+        return {
+            striker: 'Player1',
+            nonStriker: 'Player2'
+        };
     }
 
-    function calculatePlayerStats(state) {
+    function calculatePlayerStatsWithCurrentOver(state) {
         const players = {
             1: {}, // First innings players
             2: {}  // Second innings players
@@ -716,83 +701,189 @@
             2: { striker: 'Player1', nonStriker: 'Player2', nextPlayer: 3 }
         };
 
-        if (!state.overHistory) return players;
+        // Process completed overs from over history
+        if (state.overHistory) {
+            state.overHistory.forEach(over => {
+                const innings = over.innings;
+                if (!players[innings]) players[innings] = {};
 
-        // Process each over
-        state.overHistory.forEach(over => {
-            const innings = over.innings;
-            if (!players[innings]) players[innings] = {};
+                let currentStriker = currentBatsmen[innings].striker;
+                let currentNonStriker = currentBatsmen[innings].nonStriker;
 
-            let currentStriker = currentBatsmen[innings].striker;
-            let currentNonStriker = currentBatsmen[innings].nonStriker;
+                // Initialize players if not exists
+                if (!players[innings][currentStriker]) {
+                    players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                }
+                if (!players[innings][currentNonStriker]) {
+                    players[innings][currentNonStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                }
+
+                // Process each ball in the over
+                over.balls.forEach(ball => {
+                    if (ball.type === 'runs') {
+                        const runs = parseInt(ball.value);
+                        
+                        // Add runs and ball to striker
+                        players[innings][currentStriker].runs += runs;
+                        players[innings][currentStriker].balls += 1;
+
+                        // Count boundaries
+                        if (runs === 4) players[innings][currentStriker].fours += 1;
+                        if (runs === 6) players[innings][currentStriker].sixes += 1;
+
+                        // Swap batsmen if odd runs
+                        if (runs % 2 === 1) {
+                            [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                        }
+                    } else if (ball.type === 'wicket') {
+                        // Handle different wicket types
+                        if (ball.value === 'W') {
+                            // Normal wicket - striker is out
+                            players[innings][currentStriker].balls += 1;
+                            players[innings][currentStriker].isOut = true;
+                            players[innings][currentStriker].dismissal = 'Out';
+                            
+                            // New player comes in
+                            currentStriker = `Player${currentBatsmen[innings].nextPlayer}`;
+                            currentBatsmen[innings].nextPlayer += 1;
+                            
+                            if (!players[innings][currentStriker]) {
+                                players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                            }
+                        } else if (ball.value.includes('RO')) {
+                            // Run out - determine which end is out based on side info
+                            const runsScored = ball.value.includes('+') ? parseInt(ball.value.split('+')[1]) : 0;
+                            
+                            // Add runs to striker
+                            players[innings][currentStriker].runs += runsScored;
+                            players[innings][currentStriker].balls += 1;
+
+                            // Determine who is out based on 'side' property
+                            let outPlayer;
+                            if (ball.side === 'BE') {
+                                // Bowling end - non-striker is out
+                                outPlayer = currentNonStriker;
+                            } else {
+                                // Keeping end or default - striker is out
+                                outPlayer = currentStriker;
+                            }
+
+                            players[innings][outPlayer].isOut = true;
+                            players[innings][outPlayer].dismissal = 'Run Out';
+
+                            // Replace the out player
+                            const newPlayer = `Player${currentBatsmen[innings].nextPlayer}`;
+                            currentBatsmen[innings].nextPlayer += 1;
+
+                            if (!players[innings][newPlayer]) {
+                                players[innings][newPlayer] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                            }
+
+                            if (outPlayer === currentStriker) {
+                                currentStriker = newPlayer;
+                            } else {
+                                currentNonStriker = newPlayer;
+                            }
+
+                            // Swap if odd runs
+                            if (runsScored % 2 === 1) {
+                                [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                            }
+                        }
+                    } else if (ball.type === 'wide' || ball.type === 'noball') {
+                        // Wide/No-ball doesn't add to striker's ball count but may add runs
+                        if (ball.value.includes('+')) {
+                            const runs = parseInt(ball.value.split('+')[1]);
+                            players[innings][currentStriker].runs += runs;
+                            
+                            if (runs % 2 === 1) {
+                                [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+                            }
+                        }
+                    }
+                });
+
+                // Swap batsmen at end of over
+                [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+
+                // Update current batsmen for this innings
+                currentBatsmen[innings].striker = currentStriker;
+                currentBatsmen[innings].nonStriker = currentNonStriker;
+            });
+        }
+
+        // Now process current over balls
+        if (state.currentOverBalls && state.currentOverBalls.length > 0) {
+            const currentInnings = state.innings;
+            if (!players[currentInnings]) players[currentInnings] = {};
+
+            let currentStriker = currentBatsmen[currentInnings].striker;
+            let currentNonStriker = currentBatsmen[currentInnings].nonStriker;
+
+            // Get actual current batsmen from state if available
+            if (state.striker && state.nonStriker) {
+                currentStriker = state.striker;
+                currentNonStriker = state.nonStriker;
+            }
 
             // Initialize players if not exists
-            if (!players[innings][currentStriker]) {
-                players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+            if (!players[currentInnings][currentStriker]) {
+                players[currentInnings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
             }
-            if (!players[innings][currentNonStriker]) {
-                players[innings][currentNonStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+            if (!players[currentInnings][currentNonStriker]) {
+                players[currentInnings][currentNonStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
             }
 
-            // Process each ball in the over
-            over.balls.forEach(ball => {
+            // Process current over balls
+            state.currentOverBalls.forEach(ball => {
                 if (ball.type === 'runs') {
                     const runs = parseInt(ball.value);
                     
                     // Add runs and ball to striker
-                    players[innings][currentStriker].runs += runs;
-                    players[innings][currentStriker].balls += 1;
+                    players[currentInnings][currentStriker].runs += runs;
+                    players[currentInnings][currentStriker].balls += 1;
 
                     // Count boundaries
-                    if (runs === 4) players[innings][currentStriker].fours += 1;
-                    if (runs === 6) players[innings][currentStriker].sixes += 1;
+                    if (runs === 4) players[currentInnings][currentStriker].fours += 1;
+                    if (runs === 6) players[currentInnings][currentStriker].sixes += 1;
 
                     // Swap batsmen if odd runs
                     if (runs % 2 === 1) {
                         [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
                     }
                 } else if (ball.type === 'wicket') {
-                    // Handle different wicket types
                     if (ball.value === 'W') {
-                        // Normal wicket - striker is out
-                        players[innings][currentStriker].balls += 1;
-                        players[innings][currentStriker].isOut = true;
-                        players[innings][currentStriker].dismissal = 'Out';
+                        players[currentInnings][currentStriker].balls += 1;
+                        players[currentInnings][currentStriker].isOut = true;
+                        players[currentInnings][currentStriker].dismissal = 'Out';
                         
-                        // New player comes in
-                        currentStriker = `Player${currentBatsmen[innings].nextPlayer}`;
-                        currentBatsmen[innings].nextPlayer += 1;
+                        currentStriker = `Player${currentBatsmen[currentInnings].nextPlayer}`;
+                        currentBatsmen[currentInnings].nextPlayer += 1;
                         
-                        if (!players[innings][currentStriker]) {
-                            players[innings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                        if (!players[currentInnings][currentStriker]) {
+                            players[currentInnings][currentStriker] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
                         }
                     } else if (ball.value.includes('RO')) {
-                        // Run out - determine which end is out based on side info
                         const runsScored = ball.value.includes('+') ? parseInt(ball.value.split('+')[1]) : 0;
                         
-                        // Add runs to striker
-                        players[innings][currentStriker].runs += runsScored;
-                        players[innings][currentStriker].balls += 1;
+                        players[currentInnings][currentStriker].runs += runsScored;
+                        players[currentInnings][currentStriker].balls += 1;
 
-                        // Determine who is out based on 'side' property
                         let outPlayer;
                         if (ball.side === 'BE') {
-                            // Bowling end - non-striker is out
                             outPlayer = currentNonStriker;
                         } else {
-                            // Keeping end or default - striker is out
                             outPlayer = currentStriker;
                         }
 
-                        players[innings][outPlayer].isOut = true;
-                        players[innings][outPlayer].dismissal = 'Run Out';
+                        players[currentInnings][outPlayer].isOut = true;
+                        players[currentInnings][outPlayer].dismissal = 'Run Out';
 
-                        // Replace the out player
-                        const newPlayer = `Player${currentBatsmen[innings].nextPlayer}`;
-                        currentBatsmen[innings].nextPlayer += 1;
+                        const newPlayer = `Player${currentBatsmen[currentInnings].nextPlayer}`;
+                        currentBatsmen[currentInnings].nextPlayer += 1;
 
-                        if (!players[innings][newPlayer]) {
-                            players[innings][newPlayer] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
+                        if (!players[currentInnings][newPlayer]) {
+                            players[currentInnings][newPlayer] = { runs: 0, balls: 0, fours: 0, sixes: 0, isOut: false, dismissal: '' };
                         }
 
                         if (outPlayer === currentStriker) {
@@ -801,16 +892,14 @@
                             currentNonStriker = newPlayer;
                         }
 
-                        // Swap if odd runs
                         if (runsScored % 2 === 1) {
                             [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
                         }
                     }
                 } else if (ball.type === 'wide' || ball.type === 'noball') {
-                    // Wide/No-ball doesn't add to striker's ball count but may add runs
                     if (ball.value.includes('+')) {
                         const runs = parseInt(ball.value.split('+')[1]);
-                        players[innings][currentStriker].runs += runs;
+                        players[currentInnings][currentStriker].runs += runs;
                         
                         if (runs % 2 === 1) {
                             [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
@@ -819,107 +908,139 @@
                 }
             });
 
-            // Swap batsmen at end of over
-            [currentStriker, currentNonStriker] = [currentNonStriker, currentStriker];
+            // Update current batsmen info
+            currentBatsmen[currentInnings].striker = currentStriker;
+            currentBatsmen[currentInnings].nonStriker = currentNonStriker;
+        }
 
-            // Update current batsmen for this innings
-            currentBatsmen[innings].striker = currentStriker;
-            currentBatsmen[innings].nonStriker = currentNonStriker;
-        });
-
-        return players;
+        return { players, currentBatsmen };
     }
 
     function displayPlayerScorecard(state) {
-        const players = calculatePlayerStats(state);
+        const { players, currentBatsmen } = calculatePlayerStatsWithCurrentOver(state);
         const scorecardContent = document.getElementById('scorecardContent');
-        const inningsTabContainer = document.getElementById('inningsTabContainer');
 
-        // Show innings tabs if both innings exist
-        if (players[1] && Object.keys(players[1]).length > 0 && 
-            players[2] && Object.keys(players[2]).length > 0) {
-            inningsTabContainer.style.display = 'flex';
-        } else {
-            inningsTabContainer.style.display = 'none';
-            activeInnings = Object.keys(players[1] || {}).length > 0 ? 1 : 2;
+        let html = '';
+
+        // Determine which innings to show - 2nd innings first if it has started
+        let inningsToShow = [];
+        if (state.innings === 2 && players[2] && Object.keys(players[2]).length > 0) {
+            // Show 2nd innings first
+            inningsToShow = [2, 1];
+        } else if (players[1] && Object.keys(players[1]).length > 0) {
+            // Show 1st innings only
+            inningsToShow = [1];
+        } else if (players[2] && Object.keys(players[2]).length > 0) {
+            // Show 2nd innings only
+            inningsToShow = [2];
         }
 
-        const currentPlayers = players[activeInnings] || {};
-        const teamName = activeInnings === 1 ? state.battingFirst : 
-                        (state.battingFirst === state.team1 ? state.team2 : state.team1);
-
-        if (Object.keys(currentPlayers).length === 0) {
-            scorecardContent.innerHTML = '<p class="no-content">No batting data available</p>';
-            return;
-        }
-
-        // Determine header text with innings score if completed
-        let headerText = `${teamName} - `;
-        
-        // Add innings score to header if innings is completed
-        if (activeInnings === 1 && state.innings === 2 && state.innings1Score) {
-            // 1st innings completed, show the score
-            headerText = `${teamName} - ${state.innings1Score}`;
-        } else if (activeInnings === 2 && state.innings === 2) {
-            // 2nd innings - check if match is completed
-            const required = state.target - state.totalRuns;
-            const ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
-            const isAllOut = state.currentWickets === (state.totalWickets - (state?.settings?.lastPlayerCanBat ? 0 : 1));
+        inningsToShow.forEach(innings => {
+            const currentPlayers = players[innings] || {};
             
-            // Match completed conditions
-            if (required <= 0 || ballsLeft <= 0 || isAllOut) {
-                const currentScore = `${state.totalRuns}/${state.currentWickets} (${state.currentOver}.${state.currentBall})`;
-                headerText = `${teamName} - ${currentScore}`;
+            if (Object.keys(currentPlayers).length === 0) {
+                return; // Skip if no players
             }
-        }
 
-        let html = `<h3>${headerText}</h3>`;
-        html += `
-            <table class="player-table">
-                <thead>
-                    <tr>
-                        <th>Batsman</th>
-                        <th>Runs</th>
-                        <th>Balls</th>
-                        <th>4s</th>
-                        <th>6s</th>
-                        <th>SR</th>
-                        <th>Status</th>
+            const teamName = innings === 1 ? state.battingFirst : 
+                            (state.battingFirst === state.team1 ? state.team2 : state.team1);
+
+            // Determine header text with innings score if completed
+            let headerText = `${teamName} - `;
+            
+            // Add innings score to header if innings is completed
+            if (innings === 1 && state.innings === 2 && state.innings1Score) {
+                // 1st innings completed, show the score
+                headerText = `${teamName} - ${state.innings1Score}`;
+            } else if (innings === 2 && state.innings === 2) {
+                // 2nd innings - check if match is completed or ongoing
+                const required = state.target - state.totalRuns;
+                const ballsLeft = (state.totalOvers - state.currentOver) * 6 - state.currentBall;
+                const isAllOut = state.currentWickets === (state.totalWickets - (state?.settings?.lastPlayerCanBat ? 0 : 1));
+                
+                // Match completed conditions
+                if (required <= 0 || ballsLeft <= 0 || isAllOut) {
+                    const currentScore = `${state.totalRuns}/${state.currentWickets} (${state.currentOver}.${state.currentBall})`;
+                    headerText = `${teamName} - ${currentScore}`;
+                } else {
+                    // Match ongoing - just show team name for current innings
+                    headerText = `${teamName} - Batting`;
+                }
+            }
+
+            html += `<h3>${headerText}</h3>`;
+            html += `
+                <table class="player-table">
+                    <thead>
+                        <tr>
+                            <th>Batsman</th>
+                            <th>Runs</th>
+                            <th>Balls</th>
+                            <th>4s</th>
+                            <th>6s</th>
+                            <th>SR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            // Sort players by batting order
+            const sortedPlayers = Object.entries(currentPlayers).sort((a, b) => {
+                const numA = parseInt(a[0].replace('Player', ''));
+                const numB = parseInt(b[0].replace('Player', ''));
+                return numA - numB;
+            });
+
+            // Get current batsmen for this innings
+            const currentBatsmenForInnings = currentBatsmen[innings];
+            const currentStriker = innings === state.innings ? (state.striker || currentBatsmenForInnings.striker) : null;
+            const currentNonStriker = innings === state.innings ? (state.nonStriker || currentBatsmenForInnings.nonStriker) : null;
+
+            sortedPlayers.forEach(([playerName, stats]) => {
+                const sr = stats.balls > 0 ? ((stats.runs / stats.balls) * 100).toFixed(1) : '0.0';
+                
+                let playerDisplayName = playerName;
+                let isCurrentPlayer = false;
+
+                // Add * for not out players and determine if current player
+                if (innings === state.innings) {
+                    if (playerName === currentStriker || playerName === currentNonStriker) {
+                        isCurrentPlayer = true;
+                        playerDisplayName = `${playerName} *`;
+                    } else if (!stats.isOut && stats.balls > 0) {
+                        playerDisplayName = `${playerName} *`;
+                    }
+                } else {
+                    // For completed innings (first innings when we're in second innings)
+                    if (!stats.isOut && stats.balls > 0) {
+                        playerDisplayName = `${playerName} *`;
+                    }
+                }
+
+                // Add current player highlighting class
+                const rowClass = isCurrentPlayer ? 'current-player' : '';
+
+                html += `
+                    <tr class="${rowClass}">
+                        <td class="player-name">${playerDisplayName}</td>
+                        <td class="runs">${stats.runs}</td>
+                        <td>${stats.balls}</td>
+                        <td>${stats.fours}</td>
+                        <td>${stats.sixes}</td>
+                        <td class="sr">${sr}</td>
                     </tr>
-                </thead>
-                <tbody>
-        `;
-
-        // Sort players by batting order
-        const sortedPlayers = Object.entries(currentPlayers).sort((a, b) => {
-            const numA = parseInt(a[0].replace('Player', ''));
-            const numB = parseInt(b[0].replace('Player', ''));
-            return numA - numB;
-        });
-
-        sortedPlayers.forEach(([playerName, stats]) => {
-            const sr = stats.balls > 0 ? ((stats.runs / stats.balls) * 100).toFixed(1) : '0.0';
-            const status = stats.isOut ? 
-                `<span class="out">${stats.dismissal}</span>` : 
-                `<span class="not-out">Not Out</span>`;
+                `;
+            });
 
             html += `
-                <tr>
-                    <td class="player-name">${playerName}</td>
-                    <td class="runs">${stats.runs}</td>
-                    <td>${stats.balls}</td>
-                    <td>${stats.fours}</td>
-                    <td>${stats.sixes}</td>
-                    <td class="sr">${sr}</td>
-                    <td>${status}</td>
-                </tr>
+                    </tbody>
+                </table>
             `;
         });
 
-        html += `
-                </tbody>
-            </table>
-        `;
+        if (html === '') {
+            html = '<p class="no-content">No batting data available</p>';
+        }
 
         scorecardContent.innerHTML = html;
     }
